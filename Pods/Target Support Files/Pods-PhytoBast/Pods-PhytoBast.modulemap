@@ -1,0 +1,6 @@
+framework module Pods_PhytoBast {
+  umbrella header "Pods-PhytoBast-umbrella.h"
+
+  export *
+  module * { export * }
+}

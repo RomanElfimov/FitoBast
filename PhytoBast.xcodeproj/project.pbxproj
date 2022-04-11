@@ -7,15 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B4EABC614D8A84ACA4AF0549 /* Pods_PhytoBast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20B16CF5B2A7C6331B6961A4 /* Pods_PhytoBast.framework */; };
 		E91AF7BB27FF032C0054FF1D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91AF7BA27FF032C0054FF1D /* AppDelegate.swift */; };
 		E91AF7BD27FF032C0054FF1D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91AF7BC27FF032C0054FF1D /* SceneDelegate.swift */; };
 		E91AF7BF27FF032C0054FF1D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91AF7BE27FF032C0054FF1D /* ViewController.swift */; };
 		E91AF7C227FF032C0054FF1D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E91AF7C027FF032C0054FF1D /* Main.storyboard */; };
 		E91AF7C427FF03300054FF1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E91AF7C327FF03300054FF1D /* Assets.xcassets */; };
 		E91AF7C727FF03300054FF1D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E91AF7C527FF03300054FF1D /* LaunchScreen.storyboard */; };
+		E98808A22803261D00F9DFC6 /* ConnectionAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98808A12803261D00F9DFC6 /* ConnectionAlertView.swift */; };
+		E98808A628046F3200F9DFC6 /* ConnectionAlertAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = E98808A528046F3200F9DFC6 /* ConnectionAlertAnimation.json */; };
+		E98808AB280478A500F9DFC6 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98808AA280478A500F9DFC6 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		20B16CF5B2A7C6331B6961A4 /* Pods_PhytoBast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PhytoBast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B21B5F13558D4A56EF5E54A /* Pods-PhytoBast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhytoBast.release.xcconfig"; path = "Target Support Files/Pods-PhytoBast/Pods-PhytoBast.release.xcconfig"; sourceTree = "<group>"; };
+		61F8EBFA9AE04BDB66706DD9 /* Pods-PhytoBast.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhytoBast.debug.xcconfig"; path = "Target Support Files/Pods-PhytoBast/Pods-PhytoBast.debug.xcconfig"; sourceTree = "<group>"; };
 		E91AF7B727FF032C0054FF1D /* PhytoBast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhytoBast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E91AF7BA27FF032C0054FF1D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E91AF7BC27FF032C0054FF1D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -24,6 +31,9 @@
 		E91AF7C327FF03300054FF1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E91AF7C627FF03300054FF1D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E91AF7C827FF03300054FF1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E98808A12803261D00F9DFC6 /* ConnectionAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionAlertView.swift; sourceTree = "<group>"; };
+		E98808A528046F3200F9DFC6 /* ConnectionAlertAnimation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ConnectionAlertAnimation.json; sourceTree = "<group>"; };
+		E98808AA280478A500F9DFC6 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,17 +41,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4EABC614D8A84ACA4AF0549 /* Pods_PhytoBast.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		40886C72B19033ED3FE8690B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				20B16CF5B2A7C6331B6961A4 /* Pods_PhytoBast.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6263EEE17EA64FB8D60A955A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				61F8EBFA9AE04BDB66706DD9 /* Pods-PhytoBast.debug.xcconfig */,
+				4B21B5F13558D4A56EF5E54A /* Pods-PhytoBast.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		E91AF7AE27FF032C0054FF1D = {
 			isa = PBXGroup;
 			children = (
 				E91AF7B927FF032C0054FF1D /* PhytoBast */,
 				E91AF7B827FF032C0054FF1D /* Products */,
+				6263EEE17EA64FB8D60A955A /* Pods */,
+				40886C72B19033ED3FE8690B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,12 +89,23 @@
 				E91AF7BA27FF032C0054FF1D /* AppDelegate.swift */,
 				E91AF7BC27FF032C0054FF1D /* SceneDelegate.swift */,
 				E91AF7BE27FF032C0054FF1D /* ViewController.swift */,
+				E98808A92804789400F9DFC6 /* Heplers */,
 				E91AF7C027FF032C0054FF1D /* Main.storyboard */,
 				E91AF7C327FF03300054FF1D /* Assets.xcassets */,
 				E91AF7C527FF03300054FF1D /* LaunchScreen.storyboard */,
 				E91AF7C827FF03300054FF1D /* Info.plist */,
 			);
 			path = PhytoBast;
+			sourceTree = "<group>";
+		};
+		E98808A92804789400F9DFC6 /* Heplers */ = {
+			isa = PBXGroup;
+			children = (
+				E98808AA280478A500F9DFC6 /* Extensions.swift */,
+				E98808A12803261D00F9DFC6 /* ConnectionAlertView.swift */,
+				E98808A528046F3200F9DFC6 /* ConnectionAlertAnimation.json */,
+			);
+			path = Heplers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,9 +115,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E91AF7CB27FF03300054FF1D /* Build configuration list for PBXNativeTarget "PhytoBast" */;
 			buildPhases = (
+				4F2CEDE15732E36C0B841A12 /* [CP] Check Pods Manifest.lock */,
 				E91AF7B327FF032C0054FF1D /* Sources */,
 				E91AF7B427FF032C0054FF1D /* Frameworks */,
 				E91AF7B527FF032C0054FF1D /* Resources */,
+				5776E7F07EDFD07D4DC839E6 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -126,6 +169,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E91AF7C727FF03300054FF1D /* LaunchScreen.storyboard in Resources */,
+				E98808A628046F3200F9DFC6 /* ConnectionAlertAnimation.json in Resources */,
 				E91AF7C427FF03300054FF1D /* Assets.xcassets in Resources */,
 				E91AF7C227FF032C0054FF1D /* Main.storyboard in Resources */,
 			);
@@ -133,12 +177,56 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		4F2CEDE15732E36C0B841A12 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PhytoBast-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5776E7F07EDFD07D4DC839E6 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhytoBast/Pods-PhytoBast-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhytoBast/Pods-PhytoBast-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PhytoBast/Pods-PhytoBast-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E91AF7B327FF032C0054FF1D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				E91AF7BF27FF032C0054FF1D /* ViewController.swift in Sources */,
+				E98808AB280478A500F9DFC6 /* Extensions.swift in Sources */,
+				E98808A22803261D00F9DFC6 /* ConnectionAlertView.swift in Sources */,
 				E91AF7BB27FF032C0054FF1D /* AppDelegate.swift in Sources */,
 				E91AF7BD27FF032C0054FF1D /* SceneDelegate.swift in Sources */,
 			);
@@ -282,6 +370,7 @@
 		};
 		E91AF7CC27FF03300054FF1D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 61F8EBFA9AE04BDB66706DD9 /* Pods-PhytoBast.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -295,6 +384,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -310,6 +400,7 @@
 		};
 		E91AF7CD27FF03300054FF1D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4B21B5F13558D4A56EF5E54A /* Pods-PhytoBast.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -323,6 +414,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
