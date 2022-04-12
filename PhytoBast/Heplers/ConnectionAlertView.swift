@@ -68,6 +68,7 @@ class ConnectionAlertView: UIView {
         
         // blur view
         addSubview(visualEffectView)
+//        visualEffectView.isUserInteractionEnabled = false
         visualEffectView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         visualEffectView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         visualEffectView.topAnchor.constraint(equalTo: topAnchor).isActive = true
