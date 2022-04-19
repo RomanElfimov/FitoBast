@@ -28,6 +28,8 @@ enum SectionType: Int, CaseIterable {
 
 class TemplatesViewController: UIViewController {
     
+    var startTimerAciton: ((Date) -> ())?
+    
     // MARK: - Properties
     
     private var defaultTemplatesDataSourceArray: [TemplatesModel] = [TemplatesModel(title: "df"), TemplatesModel(title: "dfss"), TemplatesModel(title: "2"), TemplatesModel(title: "1")]
@@ -80,8 +82,26 @@ extension TemplatesViewController {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DefaultTemplatesCell.reuseId, for: indexPath) as? DefaultTemplatesCell else { return nil }
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
-                    print("Start \(self?.defaultTemplatesDataSourceArray[indexPath.row].title)")
-                    //delegate
+//                    print("Start \(self?.defaultTemplatesDataSourceArray[indexPath.row].title)")
+                    
+                    var date = Date()
+                    let calendar = Calendar.current
+                   
+                    switch indexPath.row {
+                    case 0:
+                        date = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
+                    case 1:
+                        date = calendar.date(byAdding: .minute, value: 3, to: Date()) ?? Date()
+                    case 2:
+                        date = calendar.date(byAdding: .minute, value: 5, to: Date()) ?? Date()
+                    case 3:
+                        date = calendar.date(byAdding: .hour, value: 7, to: Date()) ?? Date()
+                    default:
+                        break
+                    }
+                
+                    
+                    self?.startTimerAciton?(date)
                     self?.dismiss(animated: true)
                 }
                 return cell

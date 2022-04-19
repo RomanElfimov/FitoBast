@@ -13,12 +13,26 @@ class MainViewController: UIViewController {
     
     // MARK: - Priavte Properties
     
+    // mqtt
     private var mqtt: CocoaMQTT!
     private let statusTopic: String = "FFF3/685F7B00685F7B00/status/#" // Топик для статуса устройства
     
+    // menu
     private var home = CGAffineTransform()
     private var isMenuPresented = false
     private let menuDataSourceArray = ["", "Шаблоны", "Ручная настройка", "Избранное", "Журнал"] // Опции меню
+    
+    // timer
+    //    public var timerDate: Date = Date()
+    private var timerCounting: Bool = true
+    private var stopTime: Date!
+    private var sceduleTimer: Timer!
+    
+    private let userDefaults = UserDefaults.standard
+    
+    private let STOP_TIME_KEY = "startTime"
+    private let COUNTING_KEY = "timerCounting"
+    
     
     
     // MARK: - Interface Properties
@@ -53,6 +67,7 @@ class MainViewController: UIViewController {
         let button = UIButton()
         button.backgroundColor = UIColor(named: "DarkGreenColor")
         button.titleLabel?.font = UIFont.systemFont(ofSize: 32)
+        button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         button.setTitle("Старт", for: .normal)
         return button
     }()
@@ -76,6 +91,12 @@ class MainViewController: UIViewController {
         home = self.containerView.transform
         menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
         addSwipeGestures()
+        
+        stopTime = userDefaults.object(forKey: STOP_TIME_KEY) as? Date
+        timerCounting = userDefaults.bool(forKey: COUNTING_KEY)
+
+        self.startTimer()
+        
     }
     
     
@@ -93,8 +114,75 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-//                mqtt.delegate = self
+        //                mqtt.delegate = self
         mqtt.connect()
+    }
+    
+    
+    // Настройка таймера
+    private func startTimer() {
+        setTimerCounting(true)
+        timerCounting = true
+        setTime(date: stopTime)
+        
+        // mqtt turn on lights
+    }
+    
+    func setTime(date: Date?) {
+        userDefaults.set(date, forKey: STOP_TIME_KEY)
+        sceduleTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(refreshValue), userInfo: nil, repeats: true)
+    }
+    
+    func setTimerCounting(_ val: Bool) {
+        timerCounting = val
+        userDefaults.set(timerCounting, forKey: COUNTING_KEY)
+    }
+    
+    @objc func refreshValue() {
+        if timerCounting {
+            let diff = Date().timeIntervalSince(stopTime)
+            if Int(diff) >= Int(Date().timeIntervalSince(.now)) {
+                sceduleTimer.invalidate()
+                setTimerCounting(false)
+                startButton.setTitle("Старт", for: .normal)
+                // mqtt turn of lights
+                return
+            }
+            setTimeLabel(Int(diff))
+        }
+    }
+    
+    
+    // Настройка отображения времени
+    func setTimeLabel(_ val: Int) {
+        let time = secondsToHoursMinutesSeconds(val)
+        let timeString = makeTimeString(hour: time.0, min: time.1, sec: time.2)
+        startButton.setTitle(timeString, for: .normal)
+    }
+    
+    func secondsToHoursMinutesSeconds(_ ms: Int) -> (Int, Int, Int) {
+        let hour = ms / 3600
+        let min = (ms % 3600) / 60
+        let sec = (ms % 3600) % 60
+        return (hour, min, sec)
+    }
+    
+    func makeTimeString(hour: Int, min: Int, sec: Int) -> String {
+        var timeString = ""
+        timeString += String(format: "%02d", -hour)
+        timeString += ":"
+        timeString += String(format: "%02d", -min)
+        timeString += ":"
+        timeString += String(format: "%02d", -sec)
+        return timeString.replacingOccurrences(of: "-", with: "")
+    }
+    
+    
+    @objc func startButtonTapped() {
+        
+        let calendar = Calendar.current
+        stopTime = calendar.date(byAdding: .minute, value: 1, to: Date())! // просто для примера
+        self.startTimer()
     }
     
     
@@ -270,11 +358,20 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         switch indexPath.row {
         case 1:
             print("")
-            let templatesVC = UINavigationController(rootViewController: TemplatesViewController())
-            templatesVC.modalPresentationStyle = .fullScreen
-            present(templatesVC, animated: true)
-            isMenuPresented = false
-            hideMenu()
+            let templatesVC = TemplatesViewController()
+            let templatesNavVC = UINavigationController(rootViewController: templatesVC)
+            //            templatesNavVC.modalPresentationStyle = .fullScreen
+            
+            templatesVC.startTimerAciton = { [weak self] date in
+                
+                self?.stopTime = date
+                self?.startTimer()
+                
+                self?.isMenuPresented = false
+                self?.hideMenu()
+            }
+            present(templatesNavVC, animated: true)
+            
         case 2:
             print("")
         case 3:
