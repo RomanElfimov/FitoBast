@@ -93,7 +93,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-                mqtt.delegate = self
+//                mqtt.delegate = self
         mqtt.connect()
     }
     
@@ -270,10 +270,15 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         switch indexPath.row {
         case 1:
             print("")
+            let templatesVC = UINavigationController(rootViewController: TemplatesViewController())
+            templatesVC.modalPresentationStyle = .fullScreen
+            present(templatesVC, animated: true)
+            isMenuPresented = false
+            hideMenu()
         case 2:
-            print("Шаблоны")
+            print("")
         case 3:
-            print("Ручная настройка")
+            print("")
         case 4:
             print("")
         default:
