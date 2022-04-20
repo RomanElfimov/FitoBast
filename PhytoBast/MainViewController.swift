@@ -26,18 +26,16 @@ class MainViewController: UIViewController {
     private var lampScript: String = ""
     
     // timer
+    //    public var timerDate: Date = Date()
+    private var timerCounting: Bool = true
+    private var stopTime: Date = Date()
     private var sceduleTimer: Timer!
-    
-    private var hours: Int = 0
-    private var mins: Int = 0
-    private var secs: Int = 0
-    private var isTimerCounting: Bool = false
     
     private let userDefaults = UserDefaults.standard
     
-    private let timerKey = "timerKey"
-    private let isCountingKey = "timerCount"
-    
+    private let STOP_TIME_KEY = "startTime"
+    private let COUNTING_KEY = "timerCounting"
+    private let lampScriptKey = "lampScript"
     
     
     
@@ -123,7 +121,10 @@ class MainViewController: UIViewController {
         menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
         addSwipeGestures()
         
-
+        stopTime = userDefaults.object(forKey: STOP_TIME_KEY) as? Date ?? Date()
+        timerCounting = userDefaults.bool(forKey: COUNTING_KEY)
+        
+        stopButton.isHidden = true
         
         
 //        let defaults = UserDefaults.standard
@@ -132,35 +133,14 @@ class MainViewController: UIViewController {
 //                defaults.removeObject(forKey: key)
 //            }
         
-//        if isTimerCounting {
-//            stopButton.isHidden = false
-//        }
-        
-        
-        
-        
-        guard let date = userDefaults.value(forKey: timerKey) as? Date else { return }
-        isTimerCounting = userDefaults.bool(forKey: isCountingKey)
-        
-        didCreateEvent(targetDate: date)
-        
-        print(isTimerCounting)
-        
-    
-        
-        
-        if isTimerCounting {
+        if timerCounting {
+        self.startTimer()
             stopButton.isHidden = false
-            print("hee")
-        } else {
-            stopButton.isHidden = true
-            print("dddd")
+            
         }
         
-        
-        stopButton.isHidden = isTimerCounting ? false : true
-        startButton.isEnabled = isTimerCounting ? false : true
-        
+        lampScript = userDefaults.string(forKey: lampScriptKey) ?? ""
+        scriptLabel.text = lampScript
     }
     
     
@@ -183,65 +163,73 @@ class MainViewController: UIViewController {
     }
     
     
-    private func didCreateEvent(targetDate: Date) {
-
-        let difference = floor(targetDate.timeIntervalSince(Date()))
-        if difference > 0.0 {
-            
-            let computedHours: Int = Int(difference) / 3600
-            let remainder: Int = Int(difference) - (computedHours * 3600)
-            let minutes: Int = remainder / 60
-            let seconds: Int = Int(difference) - (computedHours * 3600) - (minutes * 60)
-       
-
-            hours = computedHours
-            mins = minutes
-            secs = seconds
-
-//            updateLabel()
-
-            startTimer()
-            
-        }
-        else {
-            print("negative interval")
-//            sceduleTimer.invalidate()
-            startButton.isEnabled = true
-            stopButton.isHidden = true
-        }
-    }
-    
+    // Настройка таймера
     private func startTimer() {
-        sceduleTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { [self] _ in
-            if self.secs > 0 {
-                self.secs = self.secs - 1
-            }
-            else if self.mins > 0 && self.secs == 0 {
-                self.mins = self.mins - 1
-                self.secs = 59
-            }
-            else if self.hours > 0 && self.mins == 0 && self.secs == 0 {
-                self.hours = self.hours - 1
-                self.mins = 59
-                self.secs = 59
-            }
-
-            
-            let timeString = makeTimeString(hour: self.hours, min: self.mins, sec: self.secs)
-            
-            startButton.setTitle(timeString, for: .normal)
-            
-//            self.updateLabel()
-        })
+        setTimerCounting(true)
+        timerCounting = true
+        setTime(date: stopTime)
     }
-
-//    private func updateLabel() {
-//        startButton.setTitle("\(hours):\(mins):\(secs)", for: .normal)
-//    }
+    
+    private func stopTimer() {
+        sceduleTimer.invalidate()
+        setTimerCounting(false)
+        startButton.setTitle("Старт", for: .normal)
+        startButton.isUserInteractionEnabled = true
+        
+        // mqtt turn off lights
+        switchLamp(red: 0, green: 0, blue: 0)
+        
+        // hide stop button
+        stopButton.isHidden = true
+    }
     
     
+    private func setTime(date: Date?) {
+        userDefaults.set(date, forKey: STOP_TIME_KEY)
+        sceduleTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(refreshValue), userInfo: nil, repeats: true)
+    }
+    
+    private func setTimerCounting(_ val: Bool) {
+        timerCounting = val
+        userDefaults.set(timerCounting, forKey: COUNTING_KEY)
+    }
+    
+    @objc func refreshValue() {
+        if timerCounting {
+            let diff = Date().timeIntervalSince(stopTime)
+            if Int(diff) >= Int(Date().timeIntervalSince(.now)) {
+                /*
+                sceduleTimer.invalidate()
+                setTimerCounting(false)
+                startButton.setTitle("Старт", for: .normal)
+                startButton.isUserInteractionEnabled = true
+                
+                // mqtt turn off lights
+                switchLamp(red: 0, green: 0, blue: 0)
+                */
+                stopTimer()
+                
+                return
+            }
+            setTimeLabel(Int(diff))
+        }
+    }
     
     
+    // Настройка отображения времени
+    private func setTimeLabel(_ val: Int) {
+        let time = secondsToHoursMinutesSeconds(val)
+        let timeString = makeTimeString(hour: time.0, min: time.1, sec: time.2)
+        startButton.setTitle(timeString, for: .normal)
+        startButton.isUserInteractionEnabled = false
+    }
+    
+    private func secondsToHoursMinutesSeconds(_ ms: Int) -> (Int, Int, Int) {
+        let hour = ms / 3600
+        let min = (ms % 3600) / 60
+        let sec = (ms % 3600) % 60
+        return (hour, min, sec)
+    }
     
     private func makeTimeString(hour: Int, min: Int, sec: Int) -> String {
         var timeString = ""
@@ -336,9 +324,11 @@ class MainViewController: UIViewController {
         containerView.addSubview(stopButton)
         
         startButton.centerX(inView: view)
-        startButton.setDimensions(width: 200, height: 200)
+        let dimension = UIScreen.main.bounds.width / 2.5
+        startButton.setDimensions(width: dimension, height: dimension)
         startButton.anchor(bottom: stopButton.topAnchor, paddingBottom: 32)
-        startButton.layer.cornerRadius = 100
+        startButton.layer.cornerRadius = dimension / 2
+        startButton.titleLabel?.minimumScaleFactor = 0.6
         
         // stop button
         
@@ -413,29 +403,22 @@ class MainViewController: UIViewController {
     // MARK: - Selectors
     
     @objc func startButtonTapped() {
+        
         let calendar = Calendar.current
-        let time = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
+        stopTime = calendar.date(byAdding: .minute, value: 1, to: Date())! // просто для примера
+        let diff = Date().timeIntervalSince(stopTime)
+        setTimeLabel(Int(diff))
+//        startButton.setTitle(btnLabel, for: .normal)
+        self.startTimer()
         
-        userDefaults.set(time, forKey: timerKey)
-        userDefaults.set(true, forKey: isCountingKey)
-        didCreateEvent(targetDate: time)
-        
-        startButton.isEnabled = false
         stopButton.isHidden = false
+        
+        // mqtt turn on lights
+        switchLamp(red: 255, green: 255, blue: 255)
     }
     
     @objc func stopButtonTapped() {
-        print("dfff")
-        
-        userDefaults.set(Date(), forKey: timerKey)
-        userDefaults.set(false, forKey: isCountingKey)
-        
-        startButton.setTitle("Старт", for: .normal)
-        startButton.isEnabled = true
-        stopButton.isHidden = true
-        
-        sceduleTimer.invalidate()
-        sceduleTimer = nil
+        stopTimer()
     }
     
     
@@ -500,27 +483,15 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
                 guard let self = self else { return }
                 
                 self.lampScript = model.title
+                self.userDefaults.set(self.lampScript, forKey: self.lampScriptKey)
+                self.scriptLabel.text = self.lampScript
                 
                 let calendar = Calendar.current
-                let time = calendar.date(byAdding: .minute, value: model.stopTimeIntMinutes, to: Date()) ?? Date()
+                let date = calendar.date(byAdding: .minute, value: model.stopTimeIntMinutes, to: Date()) ?? Date()
                 
-//                self.stopTime = date
-//                self.startTimer()
-//                self.stopButton.isHidden = false
-                
-                
-                self.sceduleTimer.invalidate()
-                self.sceduleTimer = nil
-                
-                self.userDefaults.set(time, forKey: self.timerKey)
-                self.userDefaults.set(true, forKey: self.isCountingKey)
-                self.didCreateEvent(targetDate: time)
-                
-                self.startButton.isEnabled = false
+                self.stopTime = date
+                self.startTimer()
                 self.stopButton.isHidden = false
-                
-                
-                
                 self.switchLamp(red: model.red, green: model.green, blue: model.blue)
                 
                 self.isMenuPresented = false
