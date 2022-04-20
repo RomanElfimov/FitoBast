@@ -16,22 +16,28 @@ class MainViewController: UIViewController {
     // mqtt
     private var mqtt: CocoaMQTT!
     private let statusTopic: String = "FFF3/685F7B00685F7B00/status/#" // Топик для статуса устройства
+    private let messageTopic: String = "FFF3/685F7B00685F7B00/api/v1/led/all/[0,5]" // Топик для сообщений
     
     // menu
     private var home = CGAffineTransform()
     private var isMenuPresented = false
     private let menuDataSourceArray = ["", "Шаблоны", "Ручная настройка", "Избранное", "Журнал"] // Опции меню
     
+    private var lampScript: String = ""
+    
     // timer
-    //    public var timerDate: Date = Date()
-    private var timerCounting: Bool = true
-    private var stopTime: Date!
     private var sceduleTimer: Timer!
+    
+    private var hours: Int = 0
+    private var mins: Int = 0
+    private var secs: Int = 0
+    private var isTimerCounting: Bool = false
     
     private let userDefaults = UserDefaults.standard
     
-    private let STOP_TIME_KEY = "startTime"
-    private let COUNTING_KEY = "timerCounting"
+    private let timerKey = "timerKey"
+    private let isCountingKey = "timerCount"
+    
     
     
     
@@ -63,19 +69,44 @@ class MainViewController: UIViewController {
         return label
     }()
     
+    private lazy var favouritesButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Сценарий", for: .normal)
+        button.backgroundColor = UIColor(named: "LightGreenColor")
+        return button
+    }()
+    
+    
+    // script button
+    private lazy var scriptLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Мой сценарий 1"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 24, weight: .medium)
+        label.textColor = UIColor(named: "DarkGreenColor")
+        return label
+    }()
+    
+    
     private lazy var startButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(named: "DarkGreenColor")
+        button.backgroundColor = UIColor(named: "LightGreenColor")
         button.titleLabel?.font = UIFont.systemFont(ofSize: 32)
         button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         button.setTitle("Старт", for: .normal)
         return button
     }()
     
-    private lazy var favouritesButton: UIButton = {
+   
+    private lazy var stopButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Сценарий", for: .normal)
-        button.backgroundColor = UIColor(named: "LightGreenColor")
+//        button.backgroundColor = UIColor(named: "DarkGreenColor")
+        button.layer.borderColor = UIColor(named: "DarkGreenColor")?.cgColor
+        button.layer.borderWidth = 2
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 22)
+        button.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
+        button.setTitle("Стоп", for: .normal)
+        button.setTitleColor(UIColor(named: "DarkGreenColor"), for: .normal)
         return button
     }()
     
@@ -92,10 +123,43 @@ class MainViewController: UIViewController {
         menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
         addSwipeGestures()
         
-        stopTime = userDefaults.object(forKey: STOP_TIME_KEY) as? Date
-        timerCounting = userDefaults.bool(forKey: COUNTING_KEY)
 
-        self.startTimer()
+        
+        
+//        let defaults = UserDefaults.standard
+//            let dictionary = defaults.dictionaryRepresentation()
+//            dictionary.keys.forEach { key in
+//                defaults.removeObject(forKey: key)
+//            }
+        
+//        if isTimerCounting {
+//            stopButton.isHidden = false
+//        }
+        
+        
+        
+        
+        guard let date = userDefaults.value(forKey: timerKey) as? Date else { return }
+        isTimerCounting = userDefaults.bool(forKey: isCountingKey)
+        
+        didCreateEvent(targetDate: date)
+        
+        print(isTimerCounting)
+        
+    
+        
+        
+        if isTimerCounting {
+            stopButton.isHidden = false
+            print("hee")
+        } else {
+            stopButton.isHidden = true
+            print("dddd")
+        }
+        
+        
+        stopButton.isHidden = isTimerCounting ? false : true
+        startButton.isEnabled = isTimerCounting ? false : true
         
     }
     
@@ -114,60 +178,72 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-        //                mqtt.delegate = self
+//                        mqtt.delegate = self
         mqtt.connect()
     }
     
     
-    // Настройка таймера
-    private func startTimer() {
-        setTimerCounting(true)
-        timerCounting = true
-        setTime(date: stopTime)
-        
-        // mqtt turn on lights
-    }
-    
-    func setTime(date: Date?) {
-        userDefaults.set(date, forKey: STOP_TIME_KEY)
-        sceduleTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(refreshValue), userInfo: nil, repeats: true)
-    }
-    
-    func setTimerCounting(_ val: Bool) {
-        timerCounting = val
-        userDefaults.set(timerCounting, forKey: COUNTING_KEY)
-    }
-    
-    @objc func refreshValue() {
-        if timerCounting {
-            let diff = Date().timeIntervalSince(stopTime)
-            if Int(diff) >= Int(Date().timeIntervalSince(.now)) {
-                sceduleTimer.invalidate()
-                setTimerCounting(false)
-                startButton.setTitle("Старт", for: .normal)
-                // mqtt turn of lights
-                return
-            }
-            setTimeLabel(Int(diff))
+    private func didCreateEvent(targetDate: Date) {
+
+        let difference = floor(targetDate.timeIntervalSince(Date()))
+        if difference > 0.0 {
+            
+            let computedHours: Int = Int(difference) / 3600
+            let remainder: Int = Int(difference) - (computedHours * 3600)
+            let minutes: Int = remainder / 60
+            let seconds: Int = Int(difference) - (computedHours * 3600) - (minutes * 60)
+       
+
+            hours = computedHours
+            mins = minutes
+            secs = seconds
+
+//            updateLabel()
+
+            startTimer()
+            
+        }
+        else {
+            print("negative interval")
+//            sceduleTimer.invalidate()
+            startButton.isEnabled = true
+            stopButton.isHidden = true
         }
     }
     
-    
-    // Настройка отображения времени
-    func setTimeLabel(_ val: Int) {
-        let time = secondsToHoursMinutesSeconds(val)
-        let timeString = makeTimeString(hour: time.0, min: time.1, sec: time.2)
-        startButton.setTitle(timeString, for: .normal)
+    private func startTimer() {
+        sceduleTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { [self] _ in
+            if self.secs > 0 {
+                self.secs = self.secs - 1
+            }
+            else if self.mins > 0 && self.secs == 0 {
+                self.mins = self.mins - 1
+                self.secs = 59
+            }
+            else if self.hours > 0 && self.mins == 0 && self.secs == 0 {
+                self.hours = self.hours - 1
+                self.mins = 59
+                self.secs = 59
+            }
+
+            
+            let timeString = makeTimeString(hour: self.hours, min: self.mins, sec: self.secs)
+            
+            startButton.setTitle(timeString, for: .normal)
+            
+//            self.updateLabel()
+        })
     }
+
+//    private func updateLabel() {
+//        startButton.setTitle("\(hours):\(mins):\(secs)", for: .normal)
+//    }
     
-    func secondsToHoursMinutesSeconds(_ ms: Int) -> (Int, Int, Int) {
-        let hour = ms / 3600
-        let min = (ms % 3600) / 60
-        let sec = (ms % 3600) % 60
-        return (hour, min, sec)
-    }
     
-    func makeTimeString(hour: Int, min: Int, sec: Int) -> String {
+    
+    
+    
+    private func makeTimeString(hour: Int, min: Int, sec: Int) -> String {
         var timeString = ""
         timeString += String(format: "%02d", -hour)
         timeString += ":"
@@ -178,12 +254,22 @@ class MainViewController: UIViewController {
     }
     
     
-    @objc func startButtonTapped() {
-        
-        let calendar = Calendar.current
-        stopTime = calendar.date(byAdding: .minute, value: 1, to: Date())! // просто для примера
-        self.startTimer()
+    private func switchLamp(red: Int, green: Int, blue: Int) {
+        let messageDictionary : [String: Any] = [ "red": red, "green": green, "blue": blue]
+        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
+        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+       
+        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
+        mqtt.publish(message)
+        mqtt.didReceiveMessage = { mqtt, message, id in
+            print("Message received in topic \(message.topic) with payload \(message.string!)")
+        }
     }
+    
+    
+    
+    
+   
     
     
     // MARK: - UI Setup
@@ -232,18 +318,36 @@ class MainViewController: UIViewController {
         logoLabel.anchor(top: logoAnimationView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: -24, height: 72)
         
         
-        // start button
-        containerView.addSubview(startButton)
-        startButton.centerX(inView: view)
-        startButton.setDimensions(width: 200, height: 200)
-        startButton.anchor(bottom: view.bottomAnchor, paddingBottom: 100)
-        startButton.layer.cornerRadius = 100
-        
         // favourites button
         containerView.addSubview(favouritesButton)
         favouritesButton.setDimensions(width: 120, height: 40)
         favouritesButton.layer.cornerRadius = 17
         favouritesButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, right: view.rightAnchor, paddingTop: 16, paddingRight: 16)
+        
+        
+        // script label
+        containerView.addSubview(scriptLabel)
+        scriptLabel.centerX(inView: view)
+        scriptLabel.anchor(top: logoLabel.bottomAnchor, left: containerView.leftAnchor, right: containerView.rightAnchor,  paddingTop: 24, height: 50)
+        
+        
+        // start button
+        containerView.addSubview(startButton)
+        containerView.addSubview(stopButton)
+        
+        startButton.centerX(inView: view)
+        startButton.setDimensions(width: 200, height: 200)
+        startButton.anchor(bottom: stopButton.topAnchor, paddingBottom: 32)
+        startButton.layer.cornerRadius = 100
+        
+        // stop button
+        
+        stopButton.centerX(inView: view)
+        stopButton.setDimensions(width: 200, height: 60)
+        stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 70)
+        stopButton.layer.cornerRadius = 16
+        
+        
     }
     
     
@@ -308,6 +412,35 @@ class MainViewController: UIViewController {
     
     // MARK: - Selectors
     
+    @objc func startButtonTapped() {
+        let calendar = Calendar.current
+        let time = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
+        
+        userDefaults.set(time, forKey: timerKey)
+        userDefaults.set(true, forKey: isCountingKey)
+        didCreateEvent(targetDate: time)
+        
+        startButton.isEnabled = false
+        stopButton.isHidden = false
+    }
+    
+    @objc func stopButtonTapped() {
+        print("dfff")
+        
+        userDefaults.set(Date(), forKey: timerKey)
+        userDefaults.set(false, forKey: isCountingKey)
+        
+        startButton.setTitle("Старт", for: .normal)
+        startButton.isEnabled = true
+        stopButton.isHidden = true
+        
+        sceduleTimer.invalidate()
+        sceduleTimer = nil
+    }
+    
+    
+    // Menu selectors
+    
     @objc func menuButtonTapped() {
         if !isMenuPresented {
             showMenu()
@@ -362,13 +495,36 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let templatesNavVC = UINavigationController(rootViewController: templatesVC)
             //            templatesNavVC.modalPresentationStyle = .fullScreen
             
-            templatesVC.startTimerAciton = { [weak self] date in
+            templatesVC.startTimerAciton = { [weak self] model in
                 
-                self?.stopTime = date
-                self?.startTimer()
+                guard let self = self else { return }
                 
-                self?.isMenuPresented = false
-                self?.hideMenu()
+                self.lampScript = model.title
+                
+                let calendar = Calendar.current
+                let time = calendar.date(byAdding: .minute, value: model.stopTimeIntMinutes, to: Date()) ?? Date()
+                
+//                self.stopTime = date
+//                self.startTimer()
+//                self.stopButton.isHidden = false
+                
+                
+                self.sceduleTimer.invalidate()
+                self.sceduleTimer = nil
+                
+                self.userDefaults.set(time, forKey: self.timerKey)
+                self.userDefaults.set(true, forKey: self.isCountingKey)
+                self.didCreateEvent(targetDate: time)
+                
+                self.startButton.isEnabled = false
+                self.stopButton.isHidden = false
+                
+                
+                
+                self.switchLamp(red: model.red, green: model.green, blue: model.blue)
+                
+                self.isMenuPresented = false
+                self.hideMenu()
             }
             present(templatesNavVC, animated: true)
             

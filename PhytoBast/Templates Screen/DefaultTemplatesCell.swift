@@ -166,7 +166,14 @@ class DefaultTemplatesCell: UICollectionViewCell {
     // MARK: - Public Method
     
     func configure(with model: TemplatesModel) {
+//        imageView.image = UIImage(named: model.imageName)
         
+        titleLabel.text = model.title
+        descriptionLabel.text = model.description
+        
+        redLabel.text = "R: \(model.red)"
+        greenLabel.text = "G: \(model.green)"
+        blueLabel.text = "B: \(model.blue)"
     }
     
     

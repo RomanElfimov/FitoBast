@@ -28,16 +28,20 @@ enum SectionType: Int, CaseIterable {
 
 class TemplatesViewController: UIViewController {
     
-    var startTimerAciton: ((Date) -> ())?
+    var startTimerAciton: ((TemplatesModel) -> ())?
     
     // MARK: - Properties
     
-    private var defaultTemplatesDataSourceArray: [TemplatesModel] = [TemplatesModel(title: "df"), TemplatesModel(title: "dfss"), TemplatesModel(title: "2"), TemplatesModel(title: "1")]
-    private var manualTemplatesDataSourceArray: [TemplatesModel] = [TemplatesModel(title: "dfqq"), TemplatesModel(title: "dfccv"), TemplatesModel(title: "3"), TemplatesModel(title: "4"), TemplatesModel(title: "5"), TemplatesModel(title: "6")]
+    private var defaultTemplatesDataSourceArray: [TemplatesModel] = [
+        TemplatesModel(imageName: "", title: "Бело-Синий", description: "kdfjlskdjfkjsdflkjksdf", red: 0, green: 0, blue: 255, stopTimeIntMinutes: 1),
+        TemplatesModel(imageName: "", title: "Бело-Красный", description: "kdfjlskdjfkjsdflkjksdf", red: 255, green: 0, blue: 0, stopTimeIntMinutes: 2),
+        TemplatesModel(imageName: "", title: "Зеленый", description: "kdfjlskdjfkjsdflkjksdf", red: 0, green: 255, blue: 0, stopTimeIntMinutes: 3),
+    ]
+    private var manualTemplatesDataSourceArray: [TemplatesModel] = [TemplatesModel(imageName: "", title: "Бело-Синий", description: "", red: 0, green: 0, blue: 255, stopTimeIntMinutes: 1)]
     
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionType, TemplatesModel>?
-
+    
     
     // MARK: - LifeCycle
     
@@ -82,26 +86,8 @@ extension TemplatesViewController {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DefaultTemplatesCell.reuseId, for: indexPath) as? DefaultTemplatesCell else { return nil }
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
-//                    print("Start \(self?.defaultTemplatesDataSourceArray[indexPath.row].title)")
                     
-                    var date = Date()
-                    let calendar = Calendar.current
-                   
-                    switch indexPath.row {
-                    case 0:
-                        date = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
-                    case 1:
-                        date = calendar.date(byAdding: .minute, value: 3, to: Date()) ?? Date()
-                    case 2:
-                        date = calendar.date(byAdding: .minute, value: 5, to: Date()) ?? Date()
-                    case 3:
-                        date = calendar.date(byAdding: .hour, value: 7, to: Date()) ?? Date()
-                    default:
-                        break
-                    }
-                
-                    
-                    self?.startTimerAciton?(date)
+                    self?.startTimerAciton?(self!.defaultTemplatesDataSourceArray[indexPath.row])
                     self?.dismiss(animated: true)
                 }
                 return cell
@@ -117,9 +103,9 @@ extension TemplatesViewController {
         dataSource?.supplementaryViewProvider = {
             collectionView, kind, indexPath in
             guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TemplatesHeader.reuseId, for: indexPath) as? TemplatesHeader else { fatalError("Can not create new section header") }
-
+            
             guard let section = SectionType(rawValue: indexPath.section) else { fatalError("Unknown section kind") }
-
+            
             sectionHeader.configurate(text: section.description())
             
             return sectionHeader
@@ -194,13 +180,13 @@ extension TemplatesViewController {
         // header
         let sectionHeader = createSectionHeader()
         section.boundarySupplementaryItems = [sectionHeader]
-
+        
         return section
     }
     
     
     private func createManualTemplates() -> NSCollectionLayoutSection {
-
+        
         // item
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -209,7 +195,7 @@ extension TemplatesViewController {
         // groups
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-//        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        //        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         
         
         // section

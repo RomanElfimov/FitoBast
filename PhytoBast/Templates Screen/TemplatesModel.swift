@@ -10,13 +10,15 @@ import Foundation
 struct TemplatesModel: Hashable {
     let uid = UUID()
     
-    let imageName: String = "АА"
+    let imageName: String
     let title: String
-    let description: String = ""
+    let description: String
     
-    let red: String = ""
-    let green: String = ""
-    let blue: String = ""
+    let red: Int
+    let green: Int
+    let blue: Int
     
     let isFavourite: Bool = false
+    var stopTimeIntMinutes: Int
+
 }
