@@ -158,7 +158,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-//                        mqtt.delegate = self
+                        mqtt.delegate = self
         mqtt.connect()
     }
     
@@ -543,6 +543,7 @@ extension MainViewController: CocoaMQTTDelegate {
             } else if message == "1" {
                 removeAlert()
             }
+            print(message)
         }
     }
     
