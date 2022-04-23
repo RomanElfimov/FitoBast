@@ -406,8 +406,8 @@ class MainViewController: UIViewController {
         
         let calendar = Calendar.current
         stopTime = calendar.date(byAdding: .minute, value: 1, to: Date())! // просто для примера
-        let diff = Date().timeIntervalSince(stopTime)
-        setTimeLabel(Int(diff))
+//        let diff = Date().timeIntervalSince(stopTime)
+//        setTimeLabel(Int(diff))
 //        startButton.setTitle(btnLabel, for: .normal)
         self.startTimer()
         
@@ -500,7 +500,12 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             present(templatesNavVC, animated: true)
             
         case 2:
-            print("")
+            
+            let manualTemplatesVC = ManualTemplatesViewController()
+            let manualTemplatesNavVC = UINavigationController(rootViewController: manualTemplatesVC)
+            manualTemplatesNavVC.modalPresentationStyle = .fullScreen
+            present(manualTemplatesNavVC, animated: true, completion: nil)
+            
         case 3:
             print("")
         case 4:
