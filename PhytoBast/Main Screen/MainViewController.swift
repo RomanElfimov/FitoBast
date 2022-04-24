@@ -8,10 +8,14 @@
 import UIKit
 import CocoaMQTT
 import Lottie
+import RealmSwift
 
 class MainViewController: UIViewController {
     
     // MARK: - Priavte Properties
+    
+    private let realm = try! Realm()
+    private var currentScriptArray: Results<CurrentTemplateModel>!
     
     // mqtt
     private var mqtt: CocoaMQTT!
@@ -22,11 +26,9 @@ class MainViewController: UIViewController {
     private var home = CGAffineTransform()
     private var isMenuPresented = false
     private let menuDataSourceArray = ["", "Шаблоны", "Ручная настройка", "Избранное", "Журнал"] // Опции меню
-    
-    private var lampScript: String = ""
+
     
     // timer
-    //    public var timerDate: Date = Date()
     private var timerCounting: Bool = true
     private var stopTime: Date = Date()
     private var sceduleTimer: Timer!
@@ -95,10 +97,9 @@ class MainViewController: UIViewController {
         return button
     }()
     
-   
+    
     private lazy var stopButton: UIButton = {
         let button = UIButton()
-//        button.backgroundColor = UIColor(named: "DarkGreenColor")
         button.layer.borderColor = UIColor(named: "DarkGreenColor")?.cgColor
         button.layer.borderWidth = 2
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22)
@@ -117,6 +118,8 @@ class MainViewController: UIViewController {
         setupMQTT()
         setupUI()
         
+        currentScriptArray = realm.objects(CurrentTemplateModel.self)
+        
         home = self.containerView.transform
         menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
         addSwipeGestures()
@@ -127,20 +130,17 @@ class MainViewController: UIViewController {
         stopButton.isHidden = true
         
         
-//        let defaults = UserDefaults.standard
-//            let dictionary = defaults.dictionaryRepresentation()
-//            dictionary.keys.forEach { key in
-//                defaults.removeObject(forKey: key)
-//            }
+        //        let defaults = UserDefaults.standard
+        //            let dictionary = defaults.dictionaryRepresentation()
+        //            dictionary.keys.forEach { key in
+        //                defaults.removeObject(forKey: key)
+        //            }
         
         if timerCounting {
-        self.startTimer()
-            stopButton.isHidden = false
-            
+            self.startTimer()
         }
         
-        lampScript = userDefaults.string(forKey: lampScriptKey) ?? ""
-        scriptLabel.text = lampScript
+        scriptLabel.text = currentScriptArray[0].title
     }
     
     
@@ -158,7 +158,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-//                        mqtt.delegate = self
+        //                        mqtt.delegate = self
         mqtt.connect()
     }
     
@@ -168,6 +168,7 @@ class MainViewController: UIViewController {
         setTimerCounting(true)
         timerCounting = true
         setTime(date: stopTime)
+        stopButton.isHidden = false
     }
     
     private func stopTimer() {
@@ -184,6 +185,11 @@ class MainViewController: UIViewController {
     }
     
     
+    private func makeDate(from value: Int) -> Date {
+        let calendar = Calendar.current
+        return calendar.date(byAdding: .minute, value: value, to: Date())!
+    }
+    
     private func setTime(date: Date?) {
         userDefaults.set(date, forKey: STOP_TIME_KEY)
         sceduleTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(refreshValue), userInfo: nil, repeats: true)
@@ -198,17 +204,8 @@ class MainViewController: UIViewController {
         if timerCounting {
             let diff = Date().timeIntervalSince(stopTime)
             if Int(diff) >= Int(Date().timeIntervalSince(.now)) {
-                /*
-                sceduleTimer.invalidate()
-                setTimerCounting(false)
-                startButton.setTitle("Старт", for: .normal)
-                startButton.isUserInteractionEnabled = true
-                
-                // mqtt turn off lights
-                switchLamp(red: 0, green: 0, blue: 0)
-                */
+            
                 stopTimer()
-                
                 return
             }
             setTimeLabel(Int(diff))
@@ -246,7 +243,7 @@ class MainViewController: UIViewController {
         let messageDictionary : [String: Any] = [ "red": red, "green": green, "blue": blue]
         let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
         let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-       
+        
         let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
         mqtt.publish(message)
         mqtt.didReceiveMessage = { mqtt, message, id in
@@ -257,7 +254,7 @@ class MainViewController: UIViewController {
     
     
     
-   
+    
     
     
     // MARK: - UI Setup
@@ -336,8 +333,6 @@ class MainViewController: UIViewController {
         stopButton.setDimensions(width: 200, height: 60)
         stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 70)
         stopButton.layer.cornerRadius = 16
-        
-        
     }
     
     
@@ -404,17 +399,19 @@ class MainViewController: UIViewController {
     
     @objc func startButtonTapped() {
         
-        let calendar = Calendar.current
-        stopTime = calendar.date(byAdding: .minute, value: 1, to: Date())! // просто для примера
-//        let diff = Date().timeIntervalSince(stopTime)
-//        setTimeLabel(Int(diff))
-//        startButton.setTitle(btnLabel, for: .normal)
+        if currentScriptArray.isEmpty {
+            // TODO: - alert
+            // show alert - выберите сценарий
+            return
+        }
+        
+        let currentScript = currentScriptArray[0]
+        stopTime = makeDate(from: currentScript.stopTime)
+    
         self.startTimer()
         
-        stopButton.isHidden = false
-        
         // mqtt turn on lights
-        switchLamp(red: 255, green: 255, blue: 255)
+        switchLamp(red: currentScript.red, green: currentScript.green, blue: currentScript.blue)
     }
     
     @objc func stopButtonTapped() {
@@ -478,22 +475,23 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let templatesNavVC = UINavigationController(rootViewController: templatesVC)
             //            templatesNavVC.modalPresentationStyle = .fullScreen
             
-            templatesVC.startTimerAciton = { [weak self] model in
+            templatesVC.startTimerAciton = { [weak self] templateModel in
                 
                 guard let self = self else { return }
-                
-                self.lampScript = model.title
-                self.userDefaults.set(self.lampScript, forKey: self.lampScriptKey)
-                self.scriptLabel.text = self.lampScript
-                
-                let calendar = Calendar.current
-                let date = calendar.date(byAdding: .minute, value: model.stopTime, to: Date()) ?? Date()
-                
-                self.stopTime = date
+     
+                self.stopTime = self.makeDate(from: templateModel.stopTime)
                 self.startTimer()
-                self.stopButton.isHidden = false
-                self.switchLamp(red: model.red, green: model.green, blue: model.blue)
-                print("RGB: \(model.red), \(model.green)")
+                
+                self.scriptLabel.text = templateModel.title
+                
+                let currentScript = CurrentTemplateModel(title: templateModel.title, red: templateModel.red, green: templateModel.green, blue: templateModel.blue, stopTime: templateModel.stopTime)
+    
+                try! self.realm.write {
+                    self.realm.delete(self.currentScriptArray)
+                    self.realm.add(currentScript)
+                }
+                
+                self.switchLamp(red: templateModel.red, green: templateModel.green, blue: templateModel.blue)
                 
                 self.isMenuPresented = false
                 self.hideMenu()
@@ -515,7 +513,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         case 3:
             let favouritesVC = FavouritesViewController()
             let favouritesNavVC = UINavigationController(rootViewController: favouritesVC)
-//            favouritesNavVC.modalPresentationStyle = .fullScreen
+            //            favouritesNavVC.modalPresentationStyle = .fullScreen
             present(favouritesNavVC, animated: true, completion: nil)
             
         case 4:
