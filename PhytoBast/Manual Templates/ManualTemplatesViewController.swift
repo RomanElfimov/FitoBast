@@ -7,15 +7,22 @@
 
 import UIKit
 import CocoaMQTT
+import RealmSwift
 
 class ManualTemplatesViewController: UITableViewController {
     
+    var stopTimer: (() -> ())?
+    
     // MARK: - Private Properties
+    
+    private let realm = try! Realm()
+    
     private var mqtt: CocoaMQTT!
     private let messageTopic: String = "FFF3/685F7B00685F7B00/api/v1/led/all/[0,5]"
  
     
     private let durationPickerDataArray = (1...24).map { "\($0) ч." }
+    private var selectedDuration: Int = 1
     
     
     // MARK: - Interface Properties
@@ -311,6 +318,15 @@ class ManualTemplatesViewController: UITableViewController {
     }
     
     
+    private func publishMQTTMessage() {
+        let messageDictionary : [String: Any] = [ "red": redSlider.value, "green": greenSlider.value, "blue": blueSlider.value]
+        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
+        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+       
+        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
+        mqtt.publish(message)
+    }
+    
     
     // MARK: - Selectors
     
@@ -325,31 +341,60 @@ class ManualTemplatesViewController: UITableViewController {
     
     @objc func showColorButtonAction() {
         
-        /*
+        
         let userDefaults = UserDefaults.standard
+        let isTimerCounting = userDefaults.bool(forKey: "timerCounting")
         
-        let isTimerCounting = ...
-        
-        if isTimerCounting  {
-            show alert
+        if isTimerCounting {
+            
+            let alertController = UIAlertController(title: "Предупреждение", message: "Текущий алгоритм работы устройства прервется", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Продолжить", style: .cancel) { [weak self] _ in
+                self?.publishMQTTMessage()
+                self?.stopTimer?()
+            }
+            
+            let cancelAction = UIAlertAction(title: "Отмена", style: .default)
+            alertController.addAction(okAction)
+            alertController.addAction(cancelAction)
+            present(alertController, animated: true)
+            
         } else {
-            // code
+            publishMQTTMessage()
         }
-         */
         
         
         
-        let messageDictionary : [String: Any] = [ "red": redSlider.value, "green": greenSlider.value, "blue": blueSlider.value]
-        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
-        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-       
-        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
-        mqtt.publish(message)
+        
+        
+        
     }
     
     
     @objc func saveButtonTapped() {
-        print("save")
+        
+        guard let tempTitle = templateNameTextField.text, tempTitle != "" else {
+            let alertController = UIAlertController(title: "Укажите имя шаблона", message: "", preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "Ок", style: .default)
+            alertController.addAction(alertAction)
+            present(alertController, animated: true)
+            return
+        }
+        
+        // Realm
+        
+        let newTemplate = TemplatesModel()
+        
+        newTemplate.title = tempTitle
+        newTemplate.red = Int(redSlider.value)
+        newTemplate.green = Int(greenSlider.value)
+        newTemplate.blue = Int(blueSlider.value)
+        newTemplate.stopTime = selectedDuration
+        
+        try! realm.write {
+            realm.add(newTemplate)
+        }
+        
+        dismiss(animated: true)
     }
     
     
@@ -529,6 +574,14 @@ extension ManualTemplatesViewController: UIPickerViewDelegate, UIPickerViewDataS
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let row = durationPickerDataArray[row]
         return row
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+
+        let durationNumber = durationPickerDataArray[row].components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        
+        selectedDuration = Int(durationNumber) ?? 0
+        print(selectedDuration)
     }
 }
 

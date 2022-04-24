@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 // MARK: - Section Type Enum
 
@@ -32,12 +33,14 @@ class TemplatesViewController: UIViewController {
     
     // MARK: - Properties
     
-    private var defaultTemplatesDataSourceArray: [TemplatesModel] = [
-        TemplatesModel(imageName: "", title: "Бело-Синий", description: "kdfjlskdjfkjsdflkjksdf", red: 0, green: 0, blue: 255, stopTimeIntMinutes: 1),
-        TemplatesModel(imageName: "", title: "Бело-Красный", description: "kdfjlskdjfkjsdflkjksdf", red: 255, green: 0, blue: 0, stopTimeIntMinutes: 2),
-        TemplatesModel(imageName: "", title: "Зеленый", description: "kdfjlskdjfkjsdflkjksdf", red: 0, green: 255, blue: 0, stopTimeIntMinutes: 3),
-    ]
-    private var manualTemplatesDataSourceArray: [TemplatesModel] = [TemplatesModel(imageName: "", title: "Бело-Синий", description: "", red: 0, green: 0, blue: 255, stopTimeIntMinutes: 1)]
+    private let realm = try! Realm()
+    
+    private var defaultTemplatesArray: Results<TemplatesModel>!
+    private var manualTemplatesArray: Results<TemplatesModel>!
+    
+    private var defaultTemplatesDataSourceArray: [TemplatesModel] = []
+    private var manualTemplatesDataSourceArray: [TemplatesModel] = []
+    
     
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionType, TemplatesModel>?
@@ -49,6 +52,13 @@ class TemplatesViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        fetchDataFromRealm()
+        
+        if defaultTemplatesDataSourceArray.isEmpty {
+            saveDefaultTemplates()
+            fetchDataFromRealm()
+        }
+        
         setupCollectionView()
         createDataSource()
         reloadData()
@@ -56,6 +66,16 @@ class TemplatesViewController: UIViewController {
     
     
     // MARK: - Private Methods
+    
+    func fetchDataFromRealm() {
+        defaultTemplatesArray = realm.objects(TemplatesModel.self)
+        defaultTemplatesDataSourceArray = defaultTemplatesArray.filter({ $0.modelDescripiton != "" })
+        
+        manualTemplatesArray = realm.objects(TemplatesModel.self)
+        manualTemplatesDataSourceArray = manualTemplatesArray.filter({ $0.modelDescripiton == "" })
+    }
+    
+    
     
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
@@ -66,6 +86,45 @@ class TemplatesViewController: UIViewController {
         collectionView.register(TemplatesHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TemplatesHeader.reuseId)
         collectionView.register(DefaultTemplatesCell.self, forCellWithReuseIdentifier: DefaultTemplatesCell.reuseId)
         collectionView.register(ManualTemplatesCell.self, forCellWithReuseIdentifier: ManualTemplatesCell.reuseId)
+    }
+    
+    
+    private func saveDefaultTemplates() {
+        
+        let bicolorTemplate = TemplatesModel(imageName: "BicolorImage",
+                                             title: "Биколор",
+                                             modelDescripiton: "Красно-синий спектр подходит для освещения рассады, в первый месяц, после всходов. Так же биколор стимулирует цветение",
+                                             red: 255,
+                                             green: 0,
+                                             blue: 255,
+                                             isFavourite: false,
+                                             stopTime: 2)
+        
+        let whiteBlueTemplate = TemplatesModel(imageName: "WhiteBlueImage",
+                                               title: "Бело-Синий",
+                                               modelDescripiton: "Преобладание синего спектра подходит для рассады, зелени, салатов, а также декоративно-лиственных, нецветущих домашних растений",
+                                               red: 0,
+                                               green: 0,
+                                               blue: 255,
+                                               isFavourite: false,
+                                               stopTime: 4)
+        
+        let whiteRedTemplate = TemplatesModel(imageName: "WhiteRedImage",
+                                              title: "Бело-Красный",
+                                              modelDescripiton: "Преобладание красного спектра стимулирует укоренение, цветение, под ним можно выращивать овощные культуры, а также, декоративно-лиственные, цветущие растения",
+                                              red: 255,
+                                              green: 0,
+                                              blue: 0,
+                                              isFavourite: false,
+                                              stopTime: 5)
+        
+        
+        
+        try! realm.write {
+            realm.add(bicolorTemplate)
+            realm.add(whiteBlueTemplate)
+            realm.add(whiteRedTemplate)
+        }
     }
 }
 
@@ -90,12 +149,41 @@ extension TemplatesViewController {
                     self?.startTimerAciton?(self!.defaultTemplatesDataSourceArray[indexPath.row])
                     self?.dismiss(animated: true)
                 }
+                
+                cell.favouritesButtonAction = { [weak self] in
+                    guard let self = self else { return }
+                    let template = self.defaultTemplatesDataSourceArray[indexPath.row]
+                    let titleForButton = !template.isFavourite ? "Удалить из избранного" : "В избранное"
+                    cell.favouritesButton.setTitle(titleForButton, for: .normal)
+                    
+                    try! self.realm.write {
+                        template.isFavourite = !template.isFavourite
+                    }
+                }
+                
                 return cell
                 
             case .manualTemplates:
                 
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ManualTemplatesCell.reuseId, for: indexPath) as? ManualTemplatesCell else { return nil }
                 cell.configure(with: template)
+                cell.startButtonAction = { [weak self] in
+                    
+                    self?.startTimerAciton?(self!.manualTemplatesDataSourceArray[indexPath.row])
+                    self?.dismiss(animated: true)
+                }
+                
+                cell.favouritesButtonAction = { [weak self] in
+                    guard let self = self else { return }
+                    let template = self.manualTemplatesDataSourceArray[indexPath.row]
+                    let titleForButton = !template.isFavourite ? "Удалить из избранного" : "В избранное"
+                    cell.favouritesButton.setTitle(titleForButton, for: .normal)
+                    
+                    try! self.realm.write {
+                        template.isFavourite = !template.isFavourite
+                    }
+                }
+                
                 return cell
             }
         })
@@ -164,7 +252,7 @@ extension TemplatesViewController {
         
         // group
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(UIScreen.main.bounds.width / 1.2),
-                                               heightDimension: .absolute(UIScreen.main.bounds.height / 2.3))
+                                               heightDimension: .absolute(UIScreen.main.bounds.height / 2.1))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         // section
@@ -193,7 +281,7 @@ extension TemplatesViewController {
         item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         
         // groups
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(200))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(240))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         //        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
         

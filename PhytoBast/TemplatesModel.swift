@@ -6,19 +6,32 @@
 //
 
 import Foundation
+import RealmSwift
 
-struct TemplatesModel: Hashable {
-    let uid = UUID()
+class TemplatesModel: Object {
     
-    let imageName: String
-    let title: String
-    let description: String
+    @objc dynamic var imageName: String = ""
+    @objc dynamic var title: String = ""
+    @objc dynamic var modelDescripiton: String = ""
     
-    let red: Int
-    let green: Int
-    let blue: Int
+    @objc dynamic var red: Int = 0
+    @objc dynamic var green: Int = 0
+    @objc dynamic var blue: Int = 0
     
-    let isFavourite: Bool = false
-    var stopTimeIntMinutes: Int
-
+    @objc dynamic var isFavourite: Bool = false
+    @objc dynamic var stopTime: Int = 0
+    
+    
+    convenience init(imageName: String, title: String, modelDescripiton: String, red: Int, green: Int, blue: Int, isFavourite: Bool, stopTime: Int) {
+        self.init()
+        
+        self.imageName = imageName
+        self.title = title
+        self.modelDescripiton = modelDescripiton
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.isFavourite = isFavourite
+        self.stopTime = stopTime
+    }
 }

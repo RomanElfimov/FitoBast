@@ -8,6 +8,7 @@ target 'PhytoBast' do
   # Pods for PhytoBast
  pod 'CocoaMQTT'
  pod 'lottie-ios'
+ pod 'RealmSwift'
 
 
 end

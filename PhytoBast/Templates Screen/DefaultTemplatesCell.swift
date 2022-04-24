@@ -9,7 +9,10 @@ import UIKit
 
 class DefaultTemplatesCell: UICollectionViewCell {
     
+    // MARK: - Completion Handlers
+    
     var startButtonAction: (() -> ())?
+    var favouritesButtonAction: (() -> ())?
     
     // MARK: - Reuse Id
     
@@ -24,7 +27,7 @@ class DefaultTemplatesCell: UICollectionViewCell {
         return iv
     }()
     
-    // title
+    // Title
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .bold)
@@ -32,39 +35,46 @@ class DefaultTemplatesCell: UICollectionViewCell {
         return label
     }()
     
-    // description
+    // Description
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.minimumScaleFactor = 0.3
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        label.text = "Подходит для рассады Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco l"
+        label.minimumScaleFactor = 0.5
+        label.adjustsFontSizeToFitWidth = true
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         return label
     }()
     
     
     
-    // red
+    // Red
     private lazy var redLabel: UILabel = {
         let label = UILabel()
         label.text = "R: 255"
         return label
     }()
     
-    // green
+    // Green
     private lazy var greenLabel: UILabel = {
         let label = UILabel()
         label.text = "G: 255"
         return label
     }()
     
-    //blue
+    // Blue
     private lazy var blueLabel: UILabel = {
         let label = UILabel()
         label.text = "B: 255"
         return label
     }()
     
+    
+    // Duration
+    private lazy var durationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Время: 5 ч."
+        return label
+    }()
     
     
     // start button
@@ -77,10 +87,11 @@ class DefaultTemplatesCell: UICollectionViewCell {
     }()
     
     // add to favourites button
-    private lazy var addToFavouritesButton: UIButton = {
+    lazy var favouritesButton: UIButton = {
         let button = UIButton()
         button.setTitle("В избранное", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.addTarget(self, action: #selector(favouritesButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -116,11 +127,14 @@ class DefaultTemplatesCell: UICollectionViewCell {
         addSubview(rgbStack)
         
         
+        addSubview(durationLabel)
+        
+        
         // buttons
         startButton.layer.cornerRadius = 16
-        addToFavouritesButton.layer.cornerRadius = 16
+        favouritesButton.layer.cornerRadius = 16
         
-        let buttonsStack = UIStackView(arrangedSubviews: [startButton, addToFavouritesButton])
+        let buttonsStack = UIStackView(arrangedSubviews: [startButton, favouritesButton])
         buttonsStack.axis = .vertical
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
@@ -133,11 +147,13 @@ class DefaultTemplatesCell: UICollectionViewCell {
         
         imageView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: infoStack.leftAnchor, paddingTop: 8, paddingLeft: 8, paddingRight: 12, width: 120, height: 200)
         
-        infoStack.anchor(top: topAnchor, left: imageView.rightAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 12, paddingBottom: 8, paddingRight: 8)
+        infoStack.anchor(top: topAnchor, left: imageView.rightAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 12, paddingRight: 8)
         
-        rgbStack.anchor(top: infoStack.bottomAnchor, left: leftAnchor, bottom: buttonsStack.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 16, paddingRight: 16, height: 50)
+        rgbStack.anchor(top: infoStack.bottomAnchor, left: leftAnchor, bottom: durationLabel.topAnchor, right: rightAnchor, paddingLeft: 16, paddingRight: 16, height: 50)
         
-        buttonsStack.anchor(top: rgbStack.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingLeft: 32, paddingBottom: 8, paddingRight: 32, height: 90)
+        durationLabel.anchor(top: rgbStack.bottomAnchor, left: leftAnchor, bottom: buttonsStack.topAnchor, right: rightAnchor, paddingTop: 4, paddingLeft: 16, paddingBottom: 8, paddingRight: 16, height: 40)
+        
+        buttonsStack.anchor(top: durationLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 32, paddingBottom: 8, paddingRight: 32, height: 90)
         
     }
     
@@ -166,20 +182,28 @@ class DefaultTemplatesCell: UICollectionViewCell {
     // MARK: - Public Method
     
     func configure(with model: TemplatesModel) {
-//        imageView.image = UIImage(named: model.imageName)
+        imageView.image = UIImage(named: model.imageName)
         
         titleLabel.text = model.title
-        descriptionLabel.text = model.description
+        descriptionLabel.text = model.modelDescripiton
         
         redLabel.text = "R: \(model.red)"
         greenLabel.text = "G: \(model.green)"
         blueLabel.text = "B: \(model.blue)"
+        
+        durationLabel.text = "Время: \(model.stopTime) ч."
+        
+        let titleForButton = model.isFavourite ? "Удалить из избранного" : "В избранное"
+        favouritesButton.setTitle(titleForButton, for: .normal)
     }
     
     
     
     @objc func startButtonTapped() {
-//        print(startButton.tag)
         startButtonAction?()
+    }
+    
+    @objc func favouritesButtonTapped() {
+        favouritesButtonAction?()
     }
 }

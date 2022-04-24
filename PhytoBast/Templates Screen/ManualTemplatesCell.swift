@@ -9,6 +9,11 @@ import UIKit
 
 class ManualTemplatesCell: UICollectionViewCell {
     
+    // MARK: - Completion Handlers
+    
+    var startButtonAction: (() -> ())?
+    var favouritesButtonAction: (() -> ())?
+    
     // MARK: - Reuse Id
     
     static let reuseId = "ManualTemplatesCell"
@@ -21,6 +26,14 @@ class ManualTemplatesCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         label.text = "Шаблон 1 sjdflskjdflksjdfkjsdkfjlksjfdksjdflksdjfkjskdfjlskdfjlsdjflskfdj"
+        return label
+    }()
+    
+    
+    // Duration
+    private lazy var durationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Время: 5 ч."
         return label
     }()
     
@@ -52,14 +65,16 @@ class ManualTemplatesCell: UICollectionViewCell {
         let button = UIButton()
         button.setTitle("Начать", for: .normal)
         button.backgroundColor = .purple
+        button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         return button
     }()
     
     // add to favourites button
-    private lazy var addToFavouritesButton: UIButton = {
+    lazy var favouritesButton: UIButton = {
         let button = UIButton()
         button.setTitle("В избранное", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.addTarget(self, action: #selector(favouritesButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -75,6 +90,8 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         addSubview(titleLabel)
         
+        addSubview(durationLabel)
+        
         // rgb
         let rgbStack = UIStackView(arrangedSubviews: [redLabel, greenLabel, blueLabel])
         rgbStack.axis = .horizontal
@@ -84,9 +101,9 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         // buttons
         startButton.layer.cornerRadius = 16
-        addToFavouritesButton.layer.cornerRadius = 16
+        favouritesButton.layer.cornerRadius = 16
         
-        let buttonsStack = UIStackView(arrangedSubviews: [startButton, addToFavouritesButton])
+        let buttonsStack = UIStackView(arrangedSubviews: [startButton, favouritesButton])
         buttonsStack.axis = .vertical
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
@@ -96,11 +113,13 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         // constraints
         
-        titleLabel.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 12, paddingLeft: 8, paddingBottom: 8, paddingRight: 8)
+        titleLabel.anchor(top: topAnchor, left: leftAnchor, bottom: durationLabel.topAnchor, right: rightAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
         
-        rgbStack.anchor(top: titleLabel.bottomAnchor, left: leftAnchor, bottom: startButton.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 16, paddingRight: 16, height: 50)
+        durationLabel.anchor(top: titleLabel.bottomAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 12, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
         
-        buttonsStack.anchor(top: rgbStack.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingLeft: 32, paddingBottom: 8, paddingRight: 32, height: 88)
+        rgbStack.anchor(top: durationLabel.bottomAnchor, left: leftAnchor, bottom: startButton.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 16, paddingRight: 16, height: 50)
+        
+        buttonsStack.anchor(top: rgbStack.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingLeft: 32, paddingBottom: 16, paddingRight: 32, height: 88)
     }
     
     required init?(coder: NSCoder) {
@@ -127,6 +146,23 @@ class ManualTemplatesCell: UICollectionViewCell {
     // MARK: - Public Method
     
     func configure(with model: TemplatesModel) {
+        titleLabel.text = model.title
+        redLabel.text = "R: \(model.red)"
+        greenLabel.text = "G: \(model.green)"
+        blueLabel.text = "B: \(model.blue)"
         
+        durationLabel.text = "Время: \(model.stopTime) ч."
+        
+        let titleForButton = model.isFavourite ? "Удалить из избранного" : "В избранное"
+        favouritesButton.setTitle(titleForButton, for: .normal)
+    }
+    
+    
+    @objc func startButtonTapped() {
+        startButtonAction?()
+    }
+    
+    @objc func favouritesButtonTapped() {
+        favouritesButtonAction?()
     }
 }

@@ -158,7 +158,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-                        mqtt.delegate = self
+//                        mqtt.delegate = self
         mqtt.connect()
     }
     
@@ -487,12 +487,13 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
                 self.scriptLabel.text = self.lampScript
                 
                 let calendar = Calendar.current
-                let date = calendar.date(byAdding: .minute, value: model.stopTimeIntMinutes, to: Date()) ?? Date()
+                let date = calendar.date(byAdding: .minute, value: model.stopTime, to: Date()) ?? Date()
                 
                 self.stopTime = date
                 self.startTimer()
                 self.stopButton.isHidden = false
                 self.switchLamp(red: model.red, green: model.green, blue: model.blue)
+                print("RGB: \(model.red), \(model.green)")
                 
                 self.isMenuPresented = false
                 self.hideMenu()
@@ -504,10 +505,19 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let manualTemplatesVC = ManualTemplatesViewController()
             let manualTemplatesNavVC = UINavigationController(rootViewController: manualTemplatesVC)
             manualTemplatesNavVC.modalPresentationStyle = .fullScreen
+            
+            manualTemplatesVC.stopTimer = { [weak self] in
+                self?.stopTimer()
+            }
+            
             present(manualTemplatesNavVC, animated: true, completion: nil)
             
         case 3:
-            print("")
+            let favouritesVC = FavouritesViewController()
+            let favouritesNavVC = UINavigationController(rootViewController: favouritesVC)
+//            favouritesNavVC.modalPresentationStyle = .fullScreen
+            present(favouritesNavVC, animated: true, completion: nil)
+            
         case 4:
             print("")
         default:
