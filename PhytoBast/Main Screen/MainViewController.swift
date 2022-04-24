@@ -14,6 +14,8 @@ class MainViewController: UIViewController {
     
     // MARK: - Priavte Properties
     
+    private var scriptPopVC: PopoverScriptTableViewController!
+    
     private let realm = try! Realm()
     private var currentScriptArray: Results<CurrentTemplateModel>!
     
@@ -29,7 +31,7 @@ class MainViewController: UIViewController {
 
     
     // timer
-    private var timerCounting: Bool = true
+    private var isTimerCounting: Bool = true
     private var stopTime: Date = Date()
     private var sceduleTimer: Timer!
     
@@ -44,7 +46,6 @@ class MainViewController: UIViewController {
     // MARK: - Interface Properties
     
     private var alertView = ConnectionAlertView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
-    
     
     private var menuTableView: UITableView!
     
@@ -69,10 +70,11 @@ class MainViewController: UIViewController {
         return label
     }()
     
-    private lazy var favouritesButton: UIButton = {
+    private lazy var scriptsButton: UIButton = {
         let button = UIButton()
         button.setTitle("Сценарий", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.addTarget(self, action: #selector(scriptsButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -125,7 +127,7 @@ class MainViewController: UIViewController {
         addSwipeGestures()
         
         stopTime = userDefaults.object(forKey: STOP_TIME_KEY) as? Date ?? Date()
-        timerCounting = userDefaults.bool(forKey: COUNTING_KEY)
+        isTimerCounting = userDefaults.bool(forKey: COUNTING_KEY)
         
         stopButton.isHidden = true
         
@@ -136,7 +138,7 @@ class MainViewController: UIViewController {
         //                defaults.removeObject(forKey: key)
         //            }
         
-        if timerCounting {
+        if isTimerCounting {
             self.startTimer()
         }
         
@@ -166,7 +168,7 @@ class MainViewController: UIViewController {
     // Настройка таймера
     private func startTimer() {
         setTimerCounting(true)
-        timerCounting = true
+        isTimerCounting = true
         setTime(date: stopTime)
         stopButton.isHidden = false
     }
@@ -196,12 +198,12 @@ class MainViewController: UIViewController {
     }
     
     private func setTimerCounting(_ val: Bool) {
-        timerCounting = val
-        userDefaults.set(timerCounting, forKey: COUNTING_KEY)
+        isTimerCounting = val
+        userDefaults.set(isTimerCounting, forKey: COUNTING_KEY)
     }
     
     @objc func refreshValue() {
-        if timerCounting {
+        if isTimerCounting {
             let diff = Date().timeIntervalSince(stopTime)
             if Int(diff) >= Int(Date().timeIntervalSince(.now)) {
             
@@ -304,10 +306,10 @@ class MainViewController: UIViewController {
         
         
         // favourites button
-        containerView.addSubview(favouritesButton)
-        favouritesButton.setDimensions(width: 120, height: 40)
-        favouritesButton.layer.cornerRadius = 17
-        favouritesButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, right: view.rightAnchor, paddingTop: 16, paddingRight: 16)
+        containerView.addSubview(scriptsButton)
+        scriptsButton.setDimensions(width: 120, height: 40)
+        scriptsButton.layer.cornerRadius = 17
+        scriptsButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, right: view.rightAnchor, paddingTop: 16, paddingRight: 16)
         
         
         // script label
@@ -444,6 +446,38 @@ class MainViewController: UIViewController {
             hideMenu()
             isMenuPresented = false
         }
+    }
+    
+    
+    @objc func scriptsButtonTapped() {
+        scriptPopVC = PopoverScriptTableViewController()
+        scriptPopVC.modalPresentationStyle = .popover
+        
+        let popOverVC = scriptPopVC.popoverPresentationController
+        popOverVC?.delegate = self
+        
+        popOverVC?.sourceView = scriptsButton
+        popOverVC?.sourceRect = CGRect(x: scriptsButton.bounds.midX - 50, y: scriptsButton.bounds.midY, width: 0, height: 0)
+        scriptPopVC.preferredContentSize = CGSize(width: 200, height: 150)
+        
+        scriptPopVC.completion = { [weak self] templateModel in
+            guard let self = self else { return }
+            
+            self.scriptLabel.text = templateModel.title
+            
+            let currentScript = CurrentTemplateModel(title: templateModel.title, red: templateModel.red, green: templateModel.green, blue: templateModel.blue, stopTime: templateModel.stopTime)
+
+            try! self.realm.write {
+                self.realm.delete(self.currentScriptArray)
+                self.realm.add(currentScript)
+            }
+            
+            if self.isTimerCounting {
+                self.stopTimer()
+            }
+        }
+        
+        present(scriptPopVC, animated: true)
     }
     
 }
@@ -597,3 +631,13 @@ extension MainViewController: CocoaMQTTDelegate {
 
 
 
+
+
+// MARK: - Extension PopoverPresentation
+
+extension MainViewController: UIPopoverPresentationControllerDelegate {
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
+    }
+}
