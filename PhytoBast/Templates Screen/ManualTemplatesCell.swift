@@ -38,7 +38,7 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // Delete Button
     private lazy var deleteButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "trash.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.red), for: .normal)
         button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         return button
@@ -63,7 +63,8 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // Start button
     private lazy var startButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = .white
         button.setTitle("Начать", for: .normal)
         button.backgroundColor = .purple
         button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
@@ -72,7 +73,8 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // Add to favourites
     lazy var favouritesButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = .white
         button.setTitle("В избранное", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
         button.addTarget(self, action: #selector(favouritesButtonTapped), for: .touchUpInside)

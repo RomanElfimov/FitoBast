@@ -57,7 +57,8 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // Start button
     private lazy var startButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = .white
         button.setTitle("Начать", for: .normal)
         button.backgroundColor = .purple
         button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
@@ -66,7 +67,8 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // Add to favourites
     lazy var favouritesButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = .white
         button.setTitle("В избранное", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
         button.addTarget(self, action: #selector(favouritesButtonTapped), for: .touchUpInside)

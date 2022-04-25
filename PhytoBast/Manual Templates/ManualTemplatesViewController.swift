@@ -145,7 +145,8 @@ class ManualTemplatesViewController: UITableViewController {
     
     private let showColorCell = UITableViewCell()
     private lazy var showColorButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18)
         button.setTitle("Показать на устройстве", for: .normal)
         button.setTitleColor(UIColor.purple, for: .normal)
         button.addTarget(self, action: #selector(showColorButtonAction), for: .touchUpInside)
@@ -157,7 +158,9 @@ class ManualTemplatesViewController: UITableViewController {
     
     private let saveCell = UITableViewCell()
     private lazy var saveButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
+        button.tintColor = .white
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         button.setTitle("Сохранить", for: .normal)
         button.backgroundColor = UIColor(named: "LightGreenColor")
         button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
