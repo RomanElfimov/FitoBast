@@ -509,7 +509,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             print("")
             let templatesVC = TemplatesViewController()
             let templatesNavVC = UINavigationController(rootViewController: templatesVC)
-            //            templatesNavVC.modalPresentationStyle = .fullScreen
+                        templatesNavVC.modalPresentationStyle = .fullScreen
             
             templatesVC.startTimerAciton = { [weak self] templateModel in
                 
@@ -549,7 +549,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         case 3:
             let favouritesVC = FavouritesViewController()
             let favouritesNavVC = UINavigationController(rootViewController: favouritesVC)
-            //            favouritesNavVC.modalPresentationStyle = .fullScreen
+                        favouritesNavVC.modalPresentationStyle = .fullScreen
             present(favouritesNavVC, animated: true, completion: nil)
             
         case 4:

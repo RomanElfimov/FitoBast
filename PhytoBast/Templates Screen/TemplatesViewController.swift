@@ -35,9 +35,6 @@ class TemplatesViewController: UIViewController {
     
     private let realm = try! Realm()
     
-//    private var defaultTemplatesArray: Results<TemplatesModel>!
-//    private var manualTemplatesArray: Results<TemplatesModel>!
-    
     private var defaultTemplatesDataSourceArray: [TemplatesModel] = []
     private var manualTemplatesDataSourceArray: [TemplatesModel] = []
     
@@ -59,6 +56,7 @@ class TemplatesViewController: UIViewController {
             fetchDataFromRealm()
         }
         
+        setupNavigationBar()
         setupCollectionView()
         createDataSource()
         reloadData()
@@ -68,30 +66,11 @@ class TemplatesViewController: UIViewController {
     // MARK: - Private Methods
     
     func fetchDataFromRealm() {
-//        defaultTemplatesArray = realm.objects(TemplatesModel.self)
-//        defaultTemplatesDataSourceArray = defaultTemplatesArray.filter({ $0.modelDescripiton != "" })
-        
-//        manualTemplatesArray = realm.objects(TemplatesModel.self)
-//        manualTemplatesDataSourceArray = manualTemplatesArray.filter({ $0.modelDescripiton == "" })
-        
         defaultTemplatesDataSourceArray = realm.objects(TemplatesModel.self).map({ $0 }).filter({ $0.modelDescripiton != "" })
         manualTemplatesDataSourceArray = realm.objects(TemplatesModel.self)
             .sorted(byKeyPath: "createdAt", ascending: false)
             .map({ $0 })
             .filter({ $0.modelDescripiton == "" })
-    }
-    
-    
-    
-    private func setupCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
-        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .white
-        view.addSubview(collectionView)
-        
-        collectionView.register(TemplatesHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TemplatesHeader.reuseId)
-        collectionView.register(DefaultTemplatesCell.self, forCellWithReuseIdentifier: DefaultTemplatesCell.reuseId)
-        collectionView.register(ManualTemplatesCell.self, forCellWithReuseIdentifier: ManualTemplatesCell.reuseId)
     }
     
     
@@ -131,6 +110,42 @@ class TemplatesViewController: UIViewController {
             realm.add(whiteBlueTemplate)
             realm.add(whiteRedTemplate)
         }
+    }
+    
+    private func setupCollectionView() {
+        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
+        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        collectionView.backgroundColor = .white
+        collectionView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 0, right: 0)
+        view.addSubview(collectionView)
+        
+        collectionView.register(TemplatesHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TemplatesHeader.reuseId)
+        collectionView.register(DefaultTemplatesCell.self, forCellWithReuseIdentifier: DefaultTemplatesCell.reuseId)
+        collectionView.register(ManualTemplatesCell.self, forCellWithReuseIdentifier: ManualTemplatesCell.reuseId)
+    }
+    
+    private func setupNavigationBar() {
+        title = "Шаблоны"
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        // background color
+        appearance.backgroundColor = UIColor(named: "LightGreenColor")
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+        navigationItem.standardAppearance = appearance
+        
+        // Dismiss button
+        let arrowImage = UIImage(systemName: "chevron.backward")?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        let dismissButton = UIBarButtonItem(image: arrowImage, style: .plain, target: self, action: #selector(dismissButtonTapped))
+        dismissButton.tintColor = .white
+        navigationItem.leftBarButtonItem = dismissButton
+        
+    }
+    
+    
+    @objc func dismissButtonTapped() {
+        dismiss(animated: true)
     }
 }
 
@@ -253,7 +268,7 @@ extension TemplatesViewController {
         }
         
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 20
+        config.interSectionSpacing = 44
         layout.configuration = config
         
         return layout
@@ -301,15 +316,12 @@ extension TemplatesViewController {
         // groups
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(240))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        //        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-        
         
         // section
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10) // отступы
         section.interGroupSpacing = 8
         section.contentInsets = NSDirectionalEdgeInsets.init(top: 16, leading: 20, bottom: 9, trailing: 16)
-        
         
         //  header
         let sectionHeader = createSectionHeader()

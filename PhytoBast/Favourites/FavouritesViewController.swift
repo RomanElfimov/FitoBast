@@ -20,6 +20,7 @@ class FavouritesViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         
         tableView = UITableView(frame: view.bounds, style: .insetGrouped)
         tableView.allowsSelection = false
@@ -30,9 +31,38 @@ class FavouritesViewController: UITableViewController {
             .filter({ $0.isFavourite == true })
     }
     
+    
+    // MARK: - Private Method
+    
+    private func setupNavigationBar() {
+        title = "Избранные шаблоны"
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        // background color
+        appearance.backgroundColor = UIColor(named: "LightGreenColor")
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+        navigationItem.standardAppearance = appearance
+        
+        // Dismiss button
+        let arrowImage = UIImage(systemName: "chevron.backward")?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        let dismissButton = UIBarButtonItem(image: arrowImage, style: .plain, target: self, action: #selector(dismissButtonTapped))
+        dismissButton.tintColor = .white
+        navigationItem.leftBarButtonItem = dismissButton
+        
+    }
+    
+    
+    // MARK: - Selector
+    
+    @objc func dismissButtonTapped() {
+        dismiss(animated: true)
+    }
+    
+    
 
     // MARK: - Table view data source
-
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favouritesDataSourceArray.count
