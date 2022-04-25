@@ -501,7 +501,9 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(indexPath.row)
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         switch indexPath.row {
         case 1:
             print("")

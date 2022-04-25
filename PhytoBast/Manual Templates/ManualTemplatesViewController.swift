@@ -173,6 +173,7 @@ class ManualTemplatesViewController: UITableViewController {
         
         setupUI()
         setupMQTT()
+        tableView.allowsSelection = false
     }
     
     

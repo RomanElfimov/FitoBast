@@ -22,6 +22,7 @@ class FavouritesViewController: UITableViewController {
         super.viewDidLoad()
         
         tableView = UITableView(frame: view.bounds, style: .insetGrouped)
+        tableView.allowsSelection = false
         tableView.register(FavouritesTableViewCell.self, forCellReuseIdentifier: "Cell")
         
         favouritesDataSourceArray = realm.objects(TemplatesModel.self)
