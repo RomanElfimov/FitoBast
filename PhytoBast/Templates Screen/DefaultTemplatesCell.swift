@@ -11,8 +11,8 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // MARK: - Completion Handlers
     
-    var startButtonAction: (() -> ())?
-    var favouritesButtonAction: (() -> ())?
+    var startButtonAction: (() -> ())? // Начать сценарий
+    var favouritesButtonAction: (() -> ())? // Добавить/удалить в избранное
     
     // MARK: - Reuse Id
     
@@ -20,6 +20,7 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // MARK: - Interface Properties
     
+    // Template image
     private lazy var imageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -45,20 +46,16 @@ class DefaultTemplatesCell: UICollectionViewCell {
     }()
     
     
-    // Red
-    private lazy var redLabel = UILabel()
-    
-    // Green
-    private lazy var greenLabel = UILabel()
-    
-    // Blue
-    private lazy var blueLabel = UILabel()
+    // RGB
+    private let redLabel = UILabel()
+    private let greenLabel = UILabel()
+    private let blueLabel = UILabel()
     
     // Duration
-    private lazy var durationLabel = UILabel()
+    private let durationLabel = UILabel()
     
     
-    // start button
+    // Start button
     private lazy var startButton: UIButton = {
         let button = UIButton()
         button.setTitle("Начать", for: .normal)
@@ -67,7 +64,7 @@ class DefaultTemplatesCell: UICollectionViewCell {
         return button
     }()
     
-    // add to favourites button
+    // Add to favourites
     lazy var favouritesButton: UIButton = {
         let button = UIButton()
         button.setTitle("В избранное", for: .normal)
@@ -87,30 +84,21 @@ class DefaultTemplatesCell: UICollectionViewCell {
         self.clipsToBounds = true
         
         
-        // Interface elements
+        // Adding subviews
         
-        addSubview(imageView)
-        
-        // title + description
+        // Title + Description
         let infoStack = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])
         infoStack.axis = .vertical
         infoStack.distribution = .fillProportionally
         infoStack.spacing = 4
         infoStack.backgroundColor = .clear
         
-        addSubview(infoStack)
-        
-        // rgb
+        // RGB
         let rgbStack = UIStackView(arrangedSubviews: [redLabel, greenLabel, blueLabel])
         rgbStack.axis = .horizontal
         rgbStack.distribution = .equalSpacing
         
-        addSubview(rgbStack)
-    
-        addSubview(durationLabel)
-        
-        
-        // buttons
+        // Buttons
         startButton.layer.cornerRadius = 16
         favouritesButton.layer.cornerRadius = 16
         
@@ -119,11 +107,15 @@ class DefaultTemplatesCell: UICollectionViewCell {
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
         
+        
+        addSubview(imageView)
+        addSubview(infoStack)
+        addSubview(rgbStack)
+        addSubview(durationLabel)
         addSubview(buttonsStack)
         
-        
-        
-        // constraints
+
+        // Setup constraints
         
         imageView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: infoStack.leftAnchor, paddingTop: 8, paddingLeft: 8, paddingRight: 12, width: 120, height: 200)
         
@@ -147,7 +139,6 @@ class DefaultTemplatesCell: UICollectionViewCell {
         super.layoutSubviews()
         
         // Тени для ячейки
-        
         self.layer.cornerRadius = 5
         self.layer.shadowRadius = 9
         layer.shadowOpacity = 0.3
@@ -163,7 +154,8 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // MARK: - Public Method
     
-    func configure(with model: TemplatesModel) {
+    // Настройка ячейки
+    public func configure(with model: TemplatesModel) {
         imageView.image = UIImage(named: model.imageName)
         
         titleLabel.text = model.title

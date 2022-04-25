@@ -10,38 +10,66 @@ import RealmSwift
 
 class FavouritesViewController: UITableViewController {
     
+    // MARK: - Private Properties
     
     private let realm = try! Realm()
-    private var favouritesArray: Results<TemplatesModel>!
     private var favouritesDataSourceArray: [TemplatesModel] = []
 
+    
+    // MARK: - Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView = UITableView(frame: view.bounds, style: .insetGrouped)
+        tableView.register(FavouritesTableViewCell.self, forCellReuseIdentifier: "Cell")
         
-        favouritesArray = realm.objects(TemplatesModel.self)
-        favouritesDataSourceArray = favouritesArray.filter({ $0.isFavourite == true })
-
+        favouritesDataSourceArray = realm.objects(TemplatesModel.self)
+            .map({ $0 })
+            .filter({ $0.isFavourite == true })
     }
+    
 
     // MARK: - Table view data source
 
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return favouritesDataSourceArray.count
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! FavouritesTableViewCell
 
-        cell.textLabel?.text = favouritesDataSourceArray[indexPath.row].title
+        cell.configure(with: favouritesDataSourceArray[indexPath.row])
 
         return cell
     }
     
     
-
+    
+    // Удаление из избранного
+    
+    override func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
+        return "Удалить"
+    }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == .delete) {
+            let template = favouritesDataSourceArray[indexPath.row]
+            try! self.realm.write {
+                            template.isFavourite = false
+                        }
+            
+            favouritesDataSourceArray.remove(at: indexPath.row)
+                        tableView.deleteRows(at: [indexPath], with: .automatic)
+            
+        }
+    }
+    
+    
 }

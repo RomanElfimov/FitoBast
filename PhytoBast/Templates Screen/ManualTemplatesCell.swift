@@ -11,22 +11,20 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // MARK: - Completion Handlers
     
-    var startButtonAction: (() -> ())?
-    var favouritesButtonAction: (() -> ())?
-    var deleteButtonAction: (() -> () )?
+    var startButtonAction: (() -> ())? // Начать сценарий
+    var favouritesButtonAction: (() -> ())? // Добавить/удалить в избранное
+    var deleteButtonAction: (() -> () )? // Удалить шаблон
     
     // MARK: - Reuse Id
     
     static let reuseId = "ManualTemplatesCell"
     
-    
+
     // MARK: - Interface Properties
     
-    // preview
+    // Pre-View
     private lazy var rgbPreView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 5
-        view.clipsToBounds = true
         
         view.layer.cornerRadius = 5
         view.layer.shadowRadius = 5
@@ -38,16 +36,15 @@ class ManualTemplatesCell: UICollectionViewCell {
         return view
     }()
     
+    // Delete Button
     private lazy var deleteButton: UIButton = {
         let button = UIButton()
-
         button.setImage(UIImage(systemName: "trash.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.red), for: .normal)
-//        button.backgroundColor = .red
         button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    // title
+    // Title
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
@@ -58,17 +55,13 @@ class ManualTemplatesCell: UICollectionViewCell {
     // Duration
     private let durationLabel = UILabel()
     
-    // red
-    private lazy var redLabel = UILabel()
-    
-    // green
-    private lazy var greenLabel = UILabel()
-    
-    //blue
-    private lazy var blueLabel = UILabel()
+    // RGB
+    private let redLabel = UILabel()
+    private let greenLabel = UILabel()
+    private let blueLabel = UILabel()
     
     
-    // start button
+    // Start button
     private lazy var startButton: UIButton = {
         let button = UIButton()
         button.setTitle("Начать", for: .normal)
@@ -77,7 +70,7 @@ class ManualTemplatesCell: UICollectionViewCell {
         return button
     }()
     
-    // add to favourites button
+    // Add to favourites
     lazy var favouritesButton: UIButton = {
         let button = UIButton()
         button.setTitle("В избранное", for: .normal)
@@ -96,19 +89,15 @@ class ManualTemplatesCell: UICollectionViewCell {
         self.layer.cornerRadius = 4
         self.clipsToBounds = true
         
-        addSubview(rgbPreView)
-        addSubview(titleLabel)
-        addSubview(durationLabel)
-        addSubview(deleteButton)
+        // Adding subviews
         
-        // rgb
+        // RGB
         let rgbStack = UIStackView(arrangedSubviews: [redLabel, greenLabel, blueLabel])
         rgbStack.axis = .horizontal
         rgbStack.distribution = .equalSpacing
         
-        addSubview(rgbStack)
-        
-        // buttons
+    
+        // Buttons Stack
         startButton.layer.cornerRadius = 16
         favouritesButton.layer.cornerRadius = 16
         
@@ -117,10 +106,16 @@ class ManualTemplatesCell: UICollectionViewCell {
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
         
+    
+        addSubview(rgbPreView)
+        addSubview(titleLabel)
+        addSubview(durationLabel)
+        addSubview(deleteButton)
+        addSubview(rgbStack)
         addSubview(buttonsStack)
         
         
-        // constraints
+        // Setup constraints
         
         rgbPreView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: titleLabel.leftAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 8, paddingRight: 16, width: 70)
         
@@ -144,10 +139,11 @@ class ManualTemplatesCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        // Тени для ячейки
         self.layer.cornerRadius = 5
         self.layer.shadowRadius = 9
         layer.shadowOpacity = 0.3
-        // На сколько отдалится тень
+        
         layer.shadowOffset = CGSize(width: 5, height: 5)
         self.clipsToBounds = false
     }
@@ -155,6 +151,7 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // MARK: - Public Method
     
+    // Настройка ячейки
     func configure(with model: TemplatesModel) {
         rgbPreView.backgroundColor = UIColor(red: CGFloat(model.red)/255, green: CGFloat(model.green)/255, blue: CGFloat(model.blue)/255, alpha: 1)
         titleLabel.text = model.title
