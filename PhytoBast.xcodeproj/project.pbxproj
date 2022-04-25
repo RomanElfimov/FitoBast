@@ -25,6 +25,7 @@
 		E9B866B72814A00300464922 /* FavouritesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B866B62814A00200464922 /* FavouritesViewController.swift */; };
 		E9B866B928158B8200464922 /* CurrentTemplateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B866B828158B8100464922 /* CurrentTemplateModel.swift */; };
 		E9B866BE2815B55E00464922 /* PopoverScriptTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B866BD2815B55E00464922 /* PopoverScriptTableViewController.swift */; };
+		E9B866C02816E11500464922 /* FavouritesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B866BF2816E11400464922 /* FavouritesTableViewCell.swift */; };
 		E9D209422807137D00D7A769 /* DefaultTemplatesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D209412807137D00D7A769 /* DefaultTemplatesCell.swift */; };
 		E9D209442807148800D7A769 /* ManualTemplatesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D209432807148800D7A769 /* ManualTemplatesCell.swift */; };
 		E9D4B7BC2813136000C08C6A /* ManualTemplatesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D4B7BB2813136000C08C6A /* ManualTemplatesViewController.swift */; };
@@ -53,6 +54,7 @@
 		E9B866B62814A00200464922 /* FavouritesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesViewController.swift; sourceTree = "<group>"; };
 		E9B866B828158B8100464922 /* CurrentTemplateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentTemplateModel.swift; sourceTree = "<group>"; };
 		E9B866BD2815B55E00464922 /* PopoverScriptTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverScriptTableViewController.swift; sourceTree = "<group>"; };
+		E9B866BF2816E11400464922 /* FavouritesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesTableViewCell.swift; sourceTree = "<group>"; };
 		E9D209412807137D00D7A769 /* DefaultTemplatesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTemplatesCell.swift; sourceTree = "<group>"; };
 		E9D209432807148800D7A769 /* ManualTemplatesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualTemplatesCell.swift; sourceTree = "<group>"; };
 		E9D4B7BB2813136000C08C6A /* ManualTemplatesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualTemplatesViewController.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				E9B866B62814A00200464922 /* FavouritesViewController.swift */,
+				E9B866BF2816E11400464922 /* FavouritesTableViewCell.swift */,
 			);
 			path = Favourites;
 			sourceTree = "<group>";
@@ -309,6 +312,7 @@
 				E98808B22805D72F00F9DFC6 /* TemplatesViewController.swift in Sources */,
 				E91AF7BF27FF032C0054FF1D /* MainViewController.swift in Sources */,
 				E98808AB280478A500F9DFC6 /* Extensions.swift in Sources */,
+				E9B866C02816E11500464922 /* FavouritesTableViewCell.swift in Sources */,
 				E9B866B928158B8200464922 /* CurrentTemplateModel.swift in Sources */,
 				E9B866B42813E56A00464922 /* aaTableViewController.swift in Sources */,
 				E9B866BE2815B55E00464922 /* PopoverScriptTableViewController.swift in Sources */,

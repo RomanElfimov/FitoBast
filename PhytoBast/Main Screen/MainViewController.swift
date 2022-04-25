@@ -142,7 +142,7 @@ class MainViewController: UIViewController {
             self.startTimer()
         }
         
-        scriptLabel.text = currentScriptArray[0].title
+        scriptLabel.text = currentScriptArray.isEmpty ? "" : currentScriptArray[0].title
     }
     
     
@@ -468,7 +468,7 @@ class MainViewController: UIViewController {
             let currentScript = CurrentTemplateModel(title: templateModel.title, red: templateModel.red, green: templateModel.green, blue: templateModel.blue, stopTime: templateModel.stopTime)
 
             try! self.realm.write {
-                self.realm.delete(self.currentScriptArray)
+                self.realm.delete(Array(self.currentScriptArray))
                 self.realm.add(currentScript)
             }
             
@@ -521,7 +521,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
                 let currentScript = CurrentTemplateModel(title: templateModel.title, red: templateModel.red, green: templateModel.green, blue: templateModel.blue, stopTime: templateModel.stopTime)
     
                 try! self.realm.write {
-                    self.realm.delete(self.currentScriptArray)
+                    self.realm.delete(Array(self.currentScriptArray))
                     self.realm.add(currentScript)
                 }
                 

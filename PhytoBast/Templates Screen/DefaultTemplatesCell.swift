@@ -31,7 +31,6 @@ class DefaultTemplatesCell: UICollectionViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        label.text = "Биколор"
         return label
     }()
     
@@ -46,35 +45,17 @@ class DefaultTemplatesCell: UICollectionViewCell {
     }()
     
     
-    
     // Red
-    private lazy var redLabel: UILabel = {
-        let label = UILabel()
-        label.text = "R: 255"
-        return label
-    }()
+    private lazy var redLabel = UILabel()
     
     // Green
-    private lazy var greenLabel: UILabel = {
-        let label = UILabel()
-        label.text = "G: 255"
-        return label
-    }()
+    private lazy var greenLabel = UILabel()
     
     // Blue
-    private lazy var blueLabel: UILabel = {
-        let label = UILabel()
-        label.text = "B: 255"
-        return label
-    }()
-    
+    private lazy var blueLabel = UILabel()
     
     // Duration
-    private lazy var durationLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Время: 5 ч."
-        return label
-    }()
+    private lazy var durationLabel = UILabel()
     
     
     // start button
@@ -125,8 +106,7 @@ class DefaultTemplatesCell: UICollectionViewCell {
         rgbStack.distribution = .equalSpacing
         
         addSubview(rgbStack)
-        
-        
+    
         addSubview(durationLabel)
         
         
@@ -166,10 +146,12 @@ class DefaultTemplatesCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        // Тени для ячейки
+        
         self.layer.cornerRadius = 5
         self.layer.shadowRadius = 9
         layer.shadowOpacity = 0.3
-        // На сколько отдалится тень
+        
         layer.shadowOffset = CGSize(width: 5, height: 5)
         self.clipsToBounds = false
         
@@ -198,6 +180,7 @@ class DefaultTemplatesCell: UICollectionViewCell {
     }
     
     
+    // MARK: - Selectors
     
     @objc func startButtonTapped() {
         startButtonAction?()

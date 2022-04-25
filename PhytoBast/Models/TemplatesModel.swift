@@ -21,6 +21,8 @@ class TemplatesModel: Object {
     @objc dynamic var isFavourite: Bool = false
     @objc dynamic var stopTime: Int = 0
     
+    @objc dynamic var createdAt: Date = Date()
+    
     
     convenience init(imageName: String, title: String, modelDescripiton: String, red: Int, green: Int, blue: Int, isFavourite: Bool, stopTime: Int) {
         self.init()

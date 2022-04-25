@@ -13,6 +13,7 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     var startButtonAction: (() -> ())?
     var favouritesButtonAction: (() -> ())?
+    var deleteButtonAction: (() -> () )?
     
     // MARK: - Reuse Id
     
@@ -21,43 +22,50 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     // MARK: - Interface Properties
     
+    // preview
+    private lazy var rgbPreView: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 5
+        view.clipsToBounds = true
+        
+        view.layer.cornerRadius = 5
+        view.layer.shadowRadius = 5
+        view.layer.shadowOpacity = 0.3
+    
+        view.layer.shadowOffset = CGSize(width: 2, height: 2)
+        view.clipsToBounds = false
+        
+        return view
+    }()
+    
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton()
+
+        button.setImage(UIImage(systemName: "trash.fill")?.withRenderingMode(.alwaysOriginal).withTintColor(.red), for: .normal)
+//        button.backgroundColor = .red
+        button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     // title
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        label.text = "Шаблон 1 sjdflskjdflksjdfkjsdkfjlksjfdksjdflksdjfkjskdfjlskdfjlsdjflskfdj"
         return label
     }()
     
     
     // Duration
-    private lazy var durationLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Время: 5 ч."
-        return label
-    }()
-    
+    private let durationLabel = UILabel()
     
     // red
-    private lazy var redLabel: UILabel = {
-        let label = UILabel()
-        label.text = "R: 255"
-        return label
-    }()
+    private lazy var redLabel = UILabel()
     
     // green
-    private lazy var greenLabel: UILabel = {
-        let label = UILabel()
-        label.text = "G: 255"
-        return label
-    }()
+    private lazy var greenLabel = UILabel()
     
     //blue
-    private lazy var blueLabel: UILabel = {
-        let label = UILabel()
-        label.text = "B: 255"
-        return label
-    }()
+    private lazy var blueLabel = UILabel()
     
     
     // start button
@@ -88,9 +96,10 @@ class ManualTemplatesCell: UICollectionViewCell {
         self.layer.cornerRadius = 4
         self.clipsToBounds = true
         
+        addSubview(rgbPreView)
         addSubview(titleLabel)
-        
         addSubview(durationLabel)
+        addSubview(deleteButton)
         
         // rgb
         let rgbStack = UIStackView(arrangedSubviews: [redLabel, greenLabel, blueLabel])
@@ -113,9 +122,13 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         // constraints
         
-        titleLabel.anchor(top: topAnchor, left: leftAnchor, bottom: durationLabel.topAnchor, right: rightAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
+        rgbPreView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: titleLabel.leftAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 8, paddingRight: 16, width: 70)
         
-        durationLabel.anchor(top: titleLabel.bottomAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 12, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
+        titleLabel.anchor(top: topAnchor, left: rgbPreView.rightAnchor, bottom: durationLabel.topAnchor, right: deleteButton.leftAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
+        
+        deleteButton.anchor(top: topAnchor, left: titleLabel.rightAnchor, right: rightAnchor, paddingTop: 8, paddingRight: 8, width: 50, height: 50)
+        
+        durationLabel.anchor(top: titleLabel.bottomAnchor, left: rgbPreView.rightAnchor, bottom: rgbStack.topAnchor, right: rightAnchor, paddingTop: 12, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
         
         rgbStack.anchor(top: durationLabel.bottomAnchor, left: leftAnchor, bottom: startButton.topAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 16, paddingRight: 16, height: 50)
         
@@ -137,15 +150,13 @@ class ManualTemplatesCell: UICollectionViewCell {
         // На сколько отдалится тень
         layer.shadowOffset = CGSize(width: 5, height: 5)
         self.clipsToBounds = false
-        
-//        imageView.layer.cornerRadius = 5
-//        imageView.clipsToBounds = true
     }
     
     
     // MARK: - Public Method
     
     func configure(with model: TemplatesModel) {
+        rgbPreView.backgroundColor = UIColor(red: CGFloat(model.red)/255, green: CGFloat(model.green)/255, blue: CGFloat(model.blue)/255, alpha: 1)
         titleLabel.text = model.title
         redLabel.text = "R: \(model.red)"
         greenLabel.text = "G: \(model.green)"
@@ -157,6 +168,13 @@ class ManualTemplatesCell: UICollectionViewCell {
         favouritesButton.setTitle(titleForButton, for: .normal)
     }
     
+    
+    
+    // MARK: - Selectors
+    
+    @objc func deleteButtonTapped() {
+        deleteButtonAction?()
+    }
     
     @objc func startButtonTapped() {
         startButtonAction?()

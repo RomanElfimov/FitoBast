@@ -35,8 +35,8 @@ class TemplatesViewController: UIViewController {
     
     private let realm = try! Realm()
     
-    private var defaultTemplatesArray: Results<TemplatesModel>!
-    private var manualTemplatesArray: Results<TemplatesModel>!
+//    private var defaultTemplatesArray: Results<TemplatesModel>!
+//    private var manualTemplatesArray: Results<TemplatesModel>!
     
     private var defaultTemplatesDataSourceArray: [TemplatesModel] = []
     private var manualTemplatesDataSourceArray: [TemplatesModel] = []
@@ -68,11 +68,17 @@ class TemplatesViewController: UIViewController {
     // MARK: - Private Methods
     
     func fetchDataFromRealm() {
-        defaultTemplatesArray = realm.objects(TemplatesModel.self)
-        defaultTemplatesDataSourceArray = defaultTemplatesArray.filter({ $0.modelDescripiton != "" })
+//        defaultTemplatesArray = realm.objects(TemplatesModel.self)
+//        defaultTemplatesDataSourceArray = defaultTemplatesArray.filter({ $0.modelDescripiton != "" })
         
-        manualTemplatesArray = realm.objects(TemplatesModel.self)
-        manualTemplatesDataSourceArray = manualTemplatesArray.filter({ $0.modelDescripiton == "" })
+//        manualTemplatesArray = realm.objects(TemplatesModel.self)
+//        manualTemplatesDataSourceArray = manualTemplatesArray.filter({ $0.modelDescripiton == "" })
+        
+        defaultTemplatesDataSourceArray = realm.objects(TemplatesModel.self).map({ $0 }).filter({ $0.modelDescripiton != "" })
+        manualTemplatesDataSourceArray = realm.objects(TemplatesModel.self)
+            .sorted(byKeyPath: "createdAt", ascending: false)
+            .map({ $0 })
+            .filter({ $0.modelDescripiton == "" })
     }
     
     
@@ -168,9 +174,9 @@ extension TemplatesViewController {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ManualTemplatesCell.reuseId, for: indexPath) as? ManualTemplatesCell else { return nil }
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
-                    
-                    self?.startTimerAciton?(self!.manualTemplatesDataSourceArray[indexPath.row])
-                    self?.dismiss(animated: true)
+                    guard let self = self else { return }
+                    self.startTimerAciton?(self.manualTemplatesDataSourceArray[indexPath.row])
+                    self.dismiss(animated: true)
                 }
                 
                 cell.favouritesButtonAction = { [weak self] in
@@ -182,6 +188,18 @@ extension TemplatesViewController {
                     try! self.realm.write {
                         template.isFavourite = !template.isFavourite
                     }
+                }
+                
+                cell.deleteButtonAction = { [weak self] in
+                    guard let self = self else { return }
+                    
+                
+                    try! self.realm.write {
+                        self.realm.delete(self.manualTemplatesDataSourceArray[indexPath.row])
+                        
+                    }
+                    self.fetchDataFromRealm()
+                    self.reloadData()
                 }
                 
                 return cell
