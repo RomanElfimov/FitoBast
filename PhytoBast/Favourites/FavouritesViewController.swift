@@ -15,6 +15,15 @@ class FavouritesViewController: UITableViewController {
     private let realm = try! Realm()
     private var favouritesDataSourceArray: [TemplatesModel] = []
 
+    private lazy var isEmptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "В избранном пока пусто"
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 19, weight: .regular)
+        label.textColor = UIColor(named: "GreenWhite")
+        return label
+    }()
     
     // MARK: - Life Cycle
     
@@ -29,10 +38,23 @@ class FavouritesViewController: UITableViewController {
         favouritesDataSourceArray = realm.objects(TemplatesModel.self)
             .map({ $0 })
             .filter({ $0.isFavourite == true })
+        
+        checkIsEmpty()
     }
     
     
     // MARK: - Private Method
+    
+    private func checkIsEmpty() {
+        if favouritesDataSourceArray.isEmpty {
+            view.addSubview(isEmptyLabel)
+            isEmptyLabel.anchor(left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 24, paddingRight: 24, height: 150)
+            isEmptyLabel.centerY(inView: view)
+            isEmptyLabel.centerX(inView: view)
+        } else {
+            isEmptyLabel.removeFromSuperview()
+        }
+    }
     
     private func setupNavigationBar() {
         title = "Избранные шаблоны"
@@ -98,7 +120,7 @@ class FavouritesViewController: UITableViewController {
             
             favouritesDataSourceArray.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath], with: .automatic)
-            
+           checkIsEmpty()
         }
     }
     

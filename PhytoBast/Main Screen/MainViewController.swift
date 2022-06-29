@@ -122,7 +122,7 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         print("Virw main")
         
-        setupMQTT()
+//        setupMQTT()
         setupUI()
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
         

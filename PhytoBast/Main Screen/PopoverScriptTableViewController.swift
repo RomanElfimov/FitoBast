@@ -21,14 +21,28 @@ class PopoverScriptTableViewController: UITableViewController {
     
     private let realm = try! Realm()
     
+    private lazy var isEmptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Сценарии пока не добавлены"
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        label.textColor = UIColor(named: "GreenWhite")
+        return label
+    }()
+    
     
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        view.backgroundColor = 
         dataArray = realm.objects(TemplatesModel.self)
         dataSourceArray = dataArray.filter({ $0.isFavourite == true })
+
+        if dataSourceArray.isEmpty {
+            dataSourceArray = realm.objects(TemplatesModel.self).map({ $0 }).filter({ $0.modelDescripiton != "" })
+        }
+        checkIsEmpty()
     }
     
     override func viewWillLayoutSubviews() {
@@ -36,6 +50,19 @@ class PopoverScriptTableViewController: UITableViewController {
             preferredContentSize = CGSize(width: 0, height: 0)
         } else {
             preferredContentSize = CGSize(width: 200, height: tableView.contentSize.height)
+        }
+    }
+    
+    // MARK: - Private Method
+    
+    private func checkIsEmpty() {
+        if dataSourceArray.isEmpty {
+            view.addSubview(isEmptyLabel)
+            isEmptyLabel.anchor(left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 24, paddingRight: 24, height: 150)
+            isEmptyLabel.centerY(inView: view)
+            isEmptyLabel.centerX(inView: view)
+        } else {
+            isEmptyLabel.removeFromSuperview()
         }
     }
     
