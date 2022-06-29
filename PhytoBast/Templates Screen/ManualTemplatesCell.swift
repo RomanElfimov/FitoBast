@@ -76,7 +76,7 @@ class ManualTemplatesCell: UICollectionViewCell {
         let button = UIButton(type: .system)
         button.tintColor = .white
         button.setTitle("В избранное", for: .normal)
-        button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.backgroundColor = UIColor(named: "LightGreen")
         button.addTarget(self, action: #selector(favouritesButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -90,6 +90,7 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         self.layer.cornerRadius = 4
         self.clipsToBounds = true
+        backgroundColor = UIColor.tertiarySystemGroupedBackground
         
         // Adding subviews
         
@@ -143,10 +144,10 @@ class ManualTemplatesCell: UICollectionViewCell {
         
         // Тени для ячейки
         self.layer.cornerRadius = 5
-        self.layer.shadowRadius = 9
+        self.layer.shadowRadius = 5
         layer.shadowOpacity = 0.3
         
-        layer.shadowOffset = CGSize(width: 5, height: 5)
+        layer.shadowOffset = CGSize(width: 3, height: 5)
         self.clipsToBounds = false
     }
     

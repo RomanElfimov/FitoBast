@@ -59,13 +59,13 @@ class MainViewController: UIViewController {
         return button
     }()
     
-    private let logoAnimationView = AnimationView(name: "LogoAnimation")
+    private let logoAnimationView = AnimationView(name: "leaves_dark")
     
     private lazy var logoLabel: UILabel = {
         let label = UILabel()
         label.text = "Fito Bast"
         label.textAlignment = .center
-        label.textColor = UIColor(named: "LightGreenColor")
+        label.textColor = UIColor(named: "GreenWhite")
         label.font = UIFont(name: "Snell Roundhand Bold", size: 54)
         return label
     }()
@@ -73,7 +73,7 @@ class MainViewController: UIViewController {
     private lazy var scriptsButton: UIButton = {
         let button = UIButton()
         button.setTitle("Сценарий", for: .normal)
-        button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.backgroundColor = UIColor(named: "LightGreen")
         button.addTarget(self, action: #selector(scriptsButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -85,14 +85,14 @@ class MainViewController: UIViewController {
         label.text = "Мой сценарий 1"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 24, weight: .medium)
-        label.textColor = UIColor(named: "DarkGreenColor")
+        label.textColor = UIColor(named: "GreenWhite")
         return label
     }()
     
     
     private lazy var startButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.backgroundColor = UIColor(named: "LightGreen")
         button.titleLabel?.font = UIFont.systemFont(ofSize: 32)
         button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         button.setTitle("Старт", for: .normal)
@@ -102,23 +102,29 @@ class MainViewController: UIViewController {
     
     private lazy var stopButton: UIButton = {
         let button = UIButton()
-        button.layer.borderColor = UIColor(named: "DarkGreenColor")?.cgColor
+        button.layer.borderColor = UIColor(named: "GreenWhite")?.cgColor
         button.layer.borderWidth = 2
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22)
         button.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
         button.setTitle("Стоп", for: .normal)
-        button.setTitleColor(UIColor(named: "DarkGreenColor"), for: .normal)
+        button.setTitleColor(UIColor(named: "GreenWhite"), for: .normal)
         return button
     }()
     
     
     // MARK: - Life Cycle
+    override func viewWillAppear(_ animated: Bool) {
+        setupMQTT()
+        print("appear")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("Virw main")
         
         setupMQTT()
         setupUI()
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
         
         currentScriptArray = realm.objects(CurrentTemplateModel.self)
         
@@ -160,7 +166,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-        //                        mqtt.delegate = self
+                                mqtt.delegate = self
         mqtt.connect()
     }
     
@@ -242,15 +248,15 @@ class MainViewController: UIViewController {
     
     
     private func switchLamp(red: Int, green: Int, blue: Int) {
+        print("Publish1")
         let messageDictionary : [String: Any] = [ "red": red, "green": green, "blue": blue]
         let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
         let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
         
         let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
         mqtt.publish(message)
-        mqtt.didReceiveMessage = { mqtt, message, id in
-            print("Message received in topic \(message.topic) with payload \(message.string!)")
-        }
+        print("Publish2")
+    
     }
     
     
@@ -284,7 +290,7 @@ class MainViewController: UIViewController {
         
         view.addSubview(containerView)
         containerView.frame = view.bounds
-        containerView.backgroundColor = .white
+        containerView.backgroundColor = UIColor(named: "BackgroundColor")
         
         
         
@@ -402,8 +408,10 @@ class MainViewController: UIViewController {
     @objc func startButtonTapped() {
         
         if currentScriptArray.isEmpty {
-            // TODO: - alert
-            // show alert - выберите сценарий
+            let alertController = UIAlertController(title: "Выберите сценарий", message: "Для управления устройством необходимо выбрать сценарий", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Ок", style: .default)
+            alertController.addAction(okAction)
+            present(alertController, animated: true)
             return
         }
         
@@ -480,6 +488,10 @@ class MainViewController: UIViewController {
         present(scriptPopVC, animated: true)
     }
     
+    @objc func applicationWillEnterForeground(_ notification: NotificationCenter) {
+        setupMQTT()
+    }
+    
 }
 
 
@@ -506,13 +518,12 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         
         switch indexPath.row {
         case 1:
-            print("")
             let templatesVC = TemplatesViewController()
             let templatesNavVC = UINavigationController(rootViewController: templatesVC)
                         templatesNavVC.modalPresentationStyle = .fullScreen
             
             templatesVC.startTimerAciton = { [weak self] templateModel in
-                
+//                print("Tapped")
                 guard let self = self else { return }
      
                 self.stopTime = self.makeDate(from: templateModel.stopTime)
@@ -528,7 +539,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
                 }
                 
                 self.switchLamp(red: templateModel.red, green: templateModel.green, blue: templateModel.blue)
-                
+                print("Tapped")
                 self.isMenuPresented = false
                 self.hideMenu()
             }
@@ -571,6 +582,7 @@ extension MainViewController: CocoaMQTTDelegate {
         print("didConnectAck: \(ack)")
         
         mqtt.subscribe(statusTopic)
+        mqtt.subscribe(messageTopic)
     }
     
     func mqtt(_ mqtt: CocoaMQTT, didPublishMessage message: CocoaMQTTMessage, id: UInt16) {
@@ -581,11 +593,12 @@ extension MainViewController: CocoaMQTTDelegate {
         print("didReceiveMessage: \(message) and \(id)")
         
         if message.topic == statusTopic.replacingOccurrences(of: "/#", with: "") {
-            guard let message = message.string else { fatalError() }
+            guard let message = message.string else { return }
             if message == "0" {
                 setAlert()
             } else if message == "1" {
                 removeAlert()
+                print("Here")
             }
             print(message)
         }

@@ -27,6 +27,8 @@ class ManualTemplatesViewController: UITableViewController {
     
     // MARK: - Interface Properties
     
+    private var alertView = ConnectionAlertView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
+    
     // Name
     
     private let templateNameCell = UITableViewCell()
@@ -162,7 +164,7 @@ class ManualTemplatesViewController: UITableViewController {
         button.tintColor = .white
         button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
         button.setTitle("Сохранить", for: .normal)
-        button.backgroundColor = UIColor(named: "LightGreenColor")
+        button.backgroundColor = UIColor(named: "LightGreen")
         button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -173,6 +175,7 @@ class ManualTemplatesViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("Virw manuak")
         
         setupUI()
         setupMQTT()

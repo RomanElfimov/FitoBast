@@ -26,7 +26,7 @@ class PopoverScriptTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+//        view.backgroundColor = 
         dataArray = realm.objects(TemplatesModel.self)
         dataSourceArray = dataArray.filter({ $0.isFavourite == true })
     }

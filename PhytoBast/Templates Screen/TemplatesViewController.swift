@@ -34,6 +34,7 @@ class TemplatesViewController: UIViewController {
     // MARK: - Properties
     
     private let realm = try! Realm()
+    private let userDefaults = UserDefaults.standard
     
     private var defaultTemplatesDataSourceArray: [TemplatesModel] = []
     private var manualTemplatesDataSourceArray: [TemplatesModel] = []
@@ -47,7 +48,6 @@ class TemplatesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         
         fetchDataFromRealm()
         
@@ -115,7 +115,7 @@ class TemplatesViewController: UIViewController {
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = UIColor.systemBackground
         collectionView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 0, right: 0)
         view.addSubview(collectionView)
         
@@ -167,8 +167,26 @@ extension TemplatesViewController {
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
                     
-                    self?.startTimerAciton?(self!.defaultTemplatesDataSourceArray[indexPath.row])
-                    self?.dismiss(animated: true)
+                    print("Tapped")
+                    guard let self = self else { return }
+                    let isTimerCounting = self.userDefaults.bool(forKey: "timerCounting")
+                    
+                    if isTimerCounting {
+                        
+                        let alertController = UIAlertController(title: "Предупреждение", message: "Текущий алгоритм работы устройства прервется", preferredStyle: .alert)
+                        let okAction = UIAlertAction(title: "Продолжить", style: .cancel) { [weak self] _ in
+                            self?.startTimerAciton?(self!.defaultTemplatesDataSourceArray[indexPath.row])
+                            self?.dismiss(animated: true)
+                        }
+                        let cancelAction = UIAlertAction(title: "Отмена", style: .default)
+                        alertController.addAction(okAction)
+                        alertController.addAction(cancelAction)
+                        self.present(alertController, animated: true)
+                    } else {
+                        self.startTimerAciton?(self.defaultTemplatesDataSourceArray[indexPath.row])
+                        self.dismiss(animated: true)
+                    }
+                    
                 }
                 
                 cell.favouritesButtonAction = { [weak self] in
@@ -190,8 +208,25 @@ extension TemplatesViewController {
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
                     guard let self = self else { return }
-                    self.startTimerAciton?(self.manualTemplatesDataSourceArray[indexPath.row])
-                    self.dismiss(animated: true)
+                    print("Tapped")
+                    
+                    let isTimerCounting = self.userDefaults.bool(forKey: "timerCounting")
+                    
+                    if isTimerCounting {
+                        
+                        let alertController = UIAlertController(title: "Предупреждение", message: "Текущий алгоритм работы устройства прервется", preferredStyle: .alert)
+                        let okAction = UIAlertAction(title: "Продолжить", style: .cancel) { [weak self] _ in
+                            self?.startTimerAciton?(self!.manualTemplatesDataSourceArray[indexPath.row])
+                            self?.dismiss(animated: true)
+                        }
+                        let cancelAction = UIAlertAction(title: "Отмена", style: .default)
+                        alertController.addAction(okAction)
+                        alertController.addAction(cancelAction)
+                        self.present(alertController, animated: true)
+                    } else {
+                        self.startTimerAciton?(self.manualTemplatesDataSourceArray[indexPath.row])
+                        self.dismiss(animated: true)
+                    }
                 }
                 
                 cell.favouritesButtonAction = { [weak self] in
