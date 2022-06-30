@@ -9,9 +9,13 @@ import UIKit
 
 class TemplatesHeader: UICollectionReusableView {
     
+    // MARK: - Properties
+    
     static let reuseId = "TemplatesHeader"
     
     private let title = UILabel()
+    
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,14 +27,15 @@ class TemplatesHeader: UICollectionReusableView {
         title.font = UIFont(name: "laoSangamMN", size: 20)
     }
     
-    func configurate(text: String) {
-        title.text = text
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Method
+    
+    public func configurate(text: String) {
+        title.text = text
+    }
     
     
 }

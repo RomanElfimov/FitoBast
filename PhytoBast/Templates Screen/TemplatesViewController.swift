@@ -8,28 +8,12 @@
 import UIKit
 import RealmSwift
 
-// MARK: - Section Type Enum
-
-enum SectionType: Int, CaseIterable {
-    case defaultTemplates
-    case manualTemplates
-    
-    func description() -> String {
-        switch self {
-        case .defaultTemplates:
-            return "Стандартные шаблоны"
-        case .manualTemplates:
-            return "Мои шаблоны"
-        }
-    }
-}
-
-
-// MARK: - ViewController
-
 class TemplatesViewController: UIViewController {
     
+    // MARK: - Completion Handler
+    
     var startTimerAciton: ((TemplatesModel) -> ())?
+    
     
     // MARK: - Properties
     
@@ -38,7 +22,6 @@ class TemplatesViewController: UIViewController {
     
     private var defaultTemplatesDataSourceArray: [TemplatesModel] = []
     private var manualTemplatesDataSourceArray: [TemplatesModel] = []
-    
     
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionType, TemplatesModel>?
@@ -53,9 +36,6 @@ class TemplatesViewController: UIViewController {
         return label
     }()
     
-    override func viewDidAppear(_ animated: Bool) {
-        navigationController?.navigationBar.barStyle = .black
-    }
     
     // MARK: - LifeCycle
     
@@ -74,7 +54,7 @@ class TemplatesViewController: UIViewController {
         createDataSource()
         reloadData()
         
-       checkIsEmpty()
+        checkIsEmpty()
     }
     
     
@@ -90,7 +70,6 @@ class TemplatesViewController: UIViewController {
     
     
     private func saveDefaultTemplates() {
-        
         let bicolorTemplate = TemplatesModel(imageName: "BicolorImage",
                                              title: "Биколор",
                                              modelDescripiton: "Красно-синий спектр подходит для освещения рассады, в первый месяц, после всходов. Так же биколор стимулирует цветение",
@@ -127,6 +106,17 @@ class TemplatesViewController: UIViewController {
         }
     }
     
+    private func checkIsEmpty() {
+        if manualTemplatesDataSourceArray.isEmpty {
+            view.addSubview(isEmptyLabel)
+            isEmptyLabel.anchor(left: view.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.rightAnchor, paddingLeft: 24, paddingBottom: 12, paddingRight: 24, height: 150)
+            isEmptyLabel.centerX(inView: view)
+        } else {
+            isEmptyLabel.removeFromSuperview()
+        }
+    }
+    
+    
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -158,16 +148,6 @@ class TemplatesViewController: UIViewController {
         
     }
     
-    private func checkIsEmpty() {
-        if manualTemplatesDataSourceArray.isEmpty {
-            view.addSubview(isEmptyLabel)
-            isEmptyLabel.anchor(left: view.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.rightAnchor, paddingLeft: 24, paddingBottom: 12, paddingRight: 24, height: 150)
-            isEmptyLabel.centerX(inView: view)
-        } else {
-            isEmptyLabel.removeFromSuperview()
-        }
-    }
-    
     
     @objc func dismissButtonTapped() {
         dismiss(animated: true)
@@ -192,7 +172,6 @@ extension TemplatesViewController {
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
                     
-                    print("Tapped")
                     guard let self = self else { return }
                     let isTimerCounting = self.userDefaults.bool(forKey: "timerCounting")
                     
@@ -211,7 +190,6 @@ extension TemplatesViewController {
                         self.startTimerAciton?(self.defaultTemplatesDataSourceArray[indexPath.row])
                         self.dismiss(animated: true)
                     }
-                    
                 }
                 
                 cell.favouritesButtonAction = { [weak self] in
@@ -268,16 +246,13 @@ extension TemplatesViewController {
                 cell.deleteButtonAction = { [weak self] in
                     guard let self = self else { return }
                     
-                
                     try! self.realm.write {
                         self.realm.delete(self.manualTemplatesDataSourceArray[indexPath.row])
-                        
                     }
                     self.fetchDataFromRealm()
                     self.reloadData()
                     self.checkIsEmpty()
                 }
-                
                 return cell
             }
         })
@@ -287,9 +262,7 @@ extension TemplatesViewController {
             guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TemplatesHeader.reuseId, for: indexPath) as? TemplatesHeader else { fatalError("Can not create new section header") }
             
             guard let section = SectionType(rawValue: indexPath.section) else { fatalError("Unknown section kind") }
-            
             sectionHeader.configurate(text: section.description())
-            
             return sectionHeader
         }
     }
@@ -334,7 +307,6 @@ extension TemplatesViewController {
         
         return layout
     }
-    
     
     
     private func createDefaultTemplates() -> NSCollectionLayoutSection {
@@ -397,7 +369,6 @@ extension TemplatesViewController {
         let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize,
                                                                         elementKind: UICollectionView.elementKindSectionHeader,
                                                                         alignment: .top)
-        
         return sectionHeader
     }
 }

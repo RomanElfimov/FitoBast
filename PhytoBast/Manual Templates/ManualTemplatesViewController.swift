@@ -10,7 +10,7 @@ import RealmSwift
 
 class ManualTemplatesViewController: UITableViewController {
     
-    // MARK: - Public closure
+    // MARK: - Completion Handler
     
     public var showOnDeviceAction: ((Int, Int, Int)  -> ())?
     

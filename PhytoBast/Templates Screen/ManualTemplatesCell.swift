@@ -19,7 +19,7 @@ class ManualTemplatesCell: UICollectionViewCell {
     
     static let reuseId = "ManualTemplatesCell"
     
-
+    
     // MARK: - Interface Properties
     
     // Pre-View
@@ -29,7 +29,7 @@ class ManualTemplatesCell: UICollectionViewCell {
         view.layer.cornerRadius = 5
         view.layer.shadowRadius = 5
         view.layer.shadowOpacity = 0.3
-    
+        
         view.layer.shadowOffset = CGSize(width: 2, height: 2)
         view.clipsToBounds = false
         
@@ -51,7 +51,6 @@ class ManualTemplatesCell: UICollectionViewCell {
         return label
     }()
     
-    
     // Duration
     private let durationLabel = UILabel()
     
@@ -59,7 +58,6 @@ class ManualTemplatesCell: UICollectionViewCell {
     private let redLabel = UILabel()
     private let greenLabel = UILabel()
     private let blueLabel = UILabel()
-    
     
     // Start button
     private lazy var startButton: UIButton = {
@@ -99,7 +97,7 @@ class ManualTemplatesCell: UICollectionViewCell {
         rgbStack.axis = .horizontal
         rgbStack.distribution = .equalSpacing
         
-    
+        
         // Buttons Stack
         startButton.layer.cornerRadius = 16
         favouritesButton.layer.cornerRadius = 16
@@ -109,7 +107,6 @@ class ManualTemplatesCell: UICollectionViewCell {
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
         
-    
         addSubview(rgbPreView)
         addSubview(titleLabel)
         addSubview(durationLabel)

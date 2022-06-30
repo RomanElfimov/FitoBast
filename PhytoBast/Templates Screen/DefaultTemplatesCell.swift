@@ -45,7 +45,6 @@ class DefaultTemplatesCell: UICollectionViewCell {
         return label
     }()
     
-    
     // RGB
     private let redLabel = UILabel()
     private let greenLabel = UILabel()
@@ -53,7 +52,6 @@ class DefaultTemplatesCell: UICollectionViewCell {
     
     // Duration
     private let durationLabel = UILabel()
-    
     
     // Start button
     private lazy var startButton: UIButton = {
@@ -109,14 +107,13 @@ class DefaultTemplatesCell: UICollectionViewCell {
         buttonsStack.distribution = .fillEqually
         buttonsStack.spacing = 8
         
-        
         addSubview(imageView)
         addSubview(infoStack)
         addSubview(rgbStack)
         addSubview(durationLabel)
         addSubview(buttonsStack)
         
-
+        
         // Setup constraints
         
         imageView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: infoStack.leftAnchor, paddingTop: 8, paddingLeft: 8, paddingRight: 12, width: 120, height: 200)
@@ -128,7 +125,6 @@ class DefaultTemplatesCell: UICollectionViewCell {
         durationLabel.anchor(top: rgbStack.bottomAnchor, left: leftAnchor, bottom: buttonsStack.topAnchor, right: rightAnchor, paddingTop: 4, paddingLeft: 16, paddingBottom: 8, paddingRight: 16, height: 40)
         
         buttonsStack.anchor(top: durationLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 32, paddingBottom: 8, paddingRight: 32, height: 90)
-        
     }
     
     
