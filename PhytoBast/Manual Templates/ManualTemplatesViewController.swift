@@ -6,20 +6,15 @@
 //
 
 import UIKit
-import CocoaMQTT
 import RealmSwift
 
 class ManualTemplatesViewController: UITableViewController {
     
-    var stopTimer: (() -> ())?
+    var showOnDeviceAction: ((Int, Int, Int)  -> ())?
     
     // MARK: - Private Properties
     
     private let realm = try! Realm()
-    
-    private var mqtt: CocoaMQTT!
-    private let messageTopic: String = "FFF3/685F7B00685F7B00/api/v1/led/all/[0,5]"
- 
     
     private let durationPickerDataArray = (1...24).map { "\($0) ч." }
     private var selectedDuration: Int = 1
@@ -174,33 +169,14 @@ class ManualTemplatesViewController: UITableViewController {
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        print("Virw manuak")
-        
+        super.viewDidLoad()        
         setupUI()
-        setupMQTT()
         tableView.allowsSelection = false
     }
     
     
     
     // MARK: - Private Methods
-    
-    private func setupMQTT() {
-        let clientID: String = "PhytoBast"
-        let host: String = "mqtt0.bast-dev.ru"
-        let port: UInt16 = 1883
-        
-        mqtt = CocoaMQTT(clientID: clientID, host: host, port: port)
-        
-        mqtt.username = "admin"
-        mqtt.password = "adminpsw"
-        
-        mqtt.keepAlive = 60
-        mqtt.delegate = self
-        mqtt.connect()
-    }
-    
     
     private func setupUI() {
         setupNavigationBar()
@@ -326,16 +302,6 @@ class ManualTemplatesViewController: UITableViewController {
     }
     
     
-    private func publishMQTTMessage() {
-        let messageDictionary : [String: Any] = [ "red": redSlider.value, "green": greenSlider.value, "blue": blueSlider.value]
-        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
-        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-       
-        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
-        mqtt.publish(message)
-    }
-    
-    
     // MARK: - Selectors
     
     @objc func sliderAction() {
@@ -357,8 +323,8 @@ class ManualTemplatesViewController: UITableViewController {
             
             let alertController = UIAlertController(title: "Предупреждение", message: "Текущий алгоритм работы устройства прервется", preferredStyle: .alert)
             let okAction = UIAlertAction(title: "Продолжить", style: .cancel) { [weak self] _ in
-                self?.publishMQTTMessage()
-                self?.stopTimer?()
+                guard let self = self else { return }
+                self.showOnDeviceAction?(Int(self.redSlider.value), Int(self.greenSlider.value), Int(self.blueSlider.value))
             }
             
             let cancelAction = UIAlertAction(title: "Отмена", style: .default)
@@ -367,7 +333,7 @@ class ManualTemplatesViewController: UITableViewController {
             present(alertController, animated: true)
             
         } else {
-            publishMQTTMessage()
+            self.showOnDeviceAction?(Int(self.redSlider.value), Int(self.greenSlider.value), Int(self.blueSlider.value))
         }
         
         
@@ -416,67 +382,6 @@ class ManualTemplatesViewController: UITableViewController {
     
 }
 
-
-
-// MARK: - MQTT Delegate Extension
-
-extension ManualTemplatesViewController: CocoaMQTTDelegate {
-    
-    func mqtt(_ mqtt: CocoaMQTT, didConnectAck ack: CocoaMQTTConnAck) {
-        print("didConnectAck: \(ack)")
-        
-        mqtt.subscribe(messageTopic)
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didPublishMessage message: CocoaMQTTMessage, id: UInt16) {
-        print("didPublishMessage: \(message) and \(id)")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didReceiveMessage message: CocoaMQTTMessage, id: UInt16) {
-        print("didReceiveMessage: \(message) and \(id)")
-        
-     
-        
-    }
-    
-    
-    
-    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topics: [String]) {
-        print("didSubscribeTopic: \(topics)")
-    }
-    
-    func mqttDidPing(_ mqtt: CocoaMQTT) {
-        print("mqttDidPing")
-    }
-    
-    func mqttDidReceivePong(_ mqtt: CocoaMQTT) {
-        print("mqttDidReceivePong")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didPublishAck id: UInt16) {
-        print("didPublishAck : \(id)")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didPublishComplete id: UInt16) {
-        print("didPublishComplete: \(id)")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topic: String) {
-        print("didSubscribeTopic: \(topic)")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didUnsubscribeTopic topic: String) {
-        print("didUnsubscribeTopic: \(topic)")
-    }
-    
-    func mqttDidDisconnect(_ mqtt: CocoaMQTT, withError err: Error?) {
-        print("mqttDidDisconnect: \(err?.localizedDescription ?? "")")
-    }
-    
-    func mqtt(_ mqtt: CocoaMQTT, didReceive trust: SecTrust, completionHandler: @escaping (Bool) -> Void) {
-        print("didReceive trust")
-    }
-}
 
 
 

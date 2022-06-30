@@ -14,8 +14,6 @@ class MainViewController: UIViewController {
     
     // MARK: - Priavte Properties
     
-    private var scriptPopVC: PopoverScriptTableViewController!
-    
     private let realm = try! Realm()
     private var currentScriptArray: Results<CurrentTemplateModel>!
     
@@ -27,7 +25,7 @@ class MainViewController: UIViewController {
     // menu
     private var home = CGAffineTransform()
     private var isMenuPresented = false
-    private let menuDataSourceArray = ["", "Шаблоны", "Ручная настройка", "Избранное", "Журнал"] // Опции меню
+    private let menuDataSourceArray = ["", "Шаблоны", "Ручная настройка", "Избранное"] // Опции меню
 
     
     // timer
@@ -35,20 +33,22 @@ class MainViewController: UIViewController {
     private var stopTime: Date = Date()
     private var sceduleTimer: Timer!
     
+    // user defaults
     private let userDefaults = UserDefaults.standard
     
-    private let STOP_TIME_KEY = "startTime"
-    private let COUNTING_KEY = "timerCounting"
+    private let topTimeKey = "startTime"
+    private let countingKey = "timerCounting"
     private let lampScriptKey = "lampScript"
     
     
     
     // MARK: - Interface Properties
     
+    private var scriptPopVC: PopoverScriptTableViewController!
+    
     private var alertView = ConnectionAlertView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
     
     private var menuTableView: UITableView!
-    
     private let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
     
     
@@ -79,7 +79,6 @@ class MainViewController: UIViewController {
     }()
     
     
-    // script button
     private lazy var scriptLabel: UILabel = {
         let label = UILabel()
         label.text = "Мой сценарий 1"
@@ -128,33 +127,94 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        setupMQTT()
         setupUI()
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
         
         currentScriptArray = realm.objects(CurrentTemplateModel.self)
         
-        home = self.containerView.transform
-        menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
-        addSwipeGestures()
-        
-        stopTime = userDefaults.object(forKey: STOP_TIME_KEY) as? Date ?? Date()
-        isTimerCounting = userDefaults.bool(forKey: COUNTING_KEY)
-        
+        stopTime = userDefaults.object(forKey: topTimeKey) as? Date ?? Date()
+        isTimerCounting = userDefaults.bool(forKey: countingKey)
         stopButton.isHidden = true
-        
-        
-        //        let defaults = UserDefaults.standard
-        //            let dictionary = defaults.dictionaryRepresentation()
-        //            dictionary.keys.forEach { key in
-        //                defaults.removeObject(forKey: key)
-        //            }
         
         if isTimerCounting {
             self.startTimer()
         }
         
         scriptLabel.text = currentScriptArray.isEmpty ? "" : currentScriptArray[0].title
+    }
+    
+    
+    // MARK: - UI Setup
+    
+    // Настраиваем элементы интерфейса
+    private func setupUI() {
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        // menu
+    
+        menuTableView = UITableView()
+        menuTableView.delegate = self
+        menuTableView.dataSource = self
+        menuTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        
+        view.addSubview(menuTableView)
+        menuTableView.frame = view.bounds
+        
+        menuTableView.separatorStyle = .none
+        menuTableView.rowHeight = 90
+        menuTableView.backgroundColor = .white
+        
+        home = self.containerView.transform
+        menuTableView.backgroundColor = UIColor(named: "DarkGreenColor")
+        addSwipeGestures()
+        
+        // container view
+        view.addSubview(containerView)
+        containerView.frame = view.bounds
+        containerView.backgroundColor = UIColor(named: "BackgroundColor")
+        
+        // menu button
+        containerView.addSubview(menuButton)
+        menuButton.setDimensions(width: 35, height: 35)
+        menuButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 16, paddingLeft: 16)
+        
+        // animation logo image
+        containerView.addSubview(logoAnimationView)
+        
+        // logo label
+        containerView.addSubview(logoLabel)
+        
+        logoAnimationView.anchor(top: menuButton.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, height: 185)
+        logoAnimationView.play()
+        
+        logoLabel.anchor(top: logoAnimationView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: -24, height: 72)
+        
+        // favourites button
+        containerView.addSubview(scriptsButton)
+        scriptsButton.setDimensions(width: 120, height: 40)
+        scriptsButton.layer.cornerRadius = 17
+        scriptsButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, right: view.rightAnchor, paddingTop: 16, paddingRight: 16)
+        
+        // script label
+        containerView.addSubview(scriptLabel)
+        scriptLabel.centerX(inView: view)
+        scriptLabel.anchor(top: logoLabel.bottomAnchor, left: containerView.leftAnchor, right: containerView.rightAnchor,  paddingTop: 24, height: 50)
+        
+        // start button
+        containerView.addSubview(startButton)
+        containerView.addSubview(stopButton)
+        
+        startButton.centerX(inView: view)
+        let dimension = UIScreen.main.bounds.width / 2.7
+        startButton.setDimensions(width: dimension, height: dimension)
+        startButton.anchor(top: scriptLabel.bottomAnchor, paddingTop: 28)
+        startButton.layer.cornerRadius = dimension / 2
+        startButton.titleLabel?.minimumScaleFactor = 0.6
+        
+        // stop button
+        stopButton.centerX(inView: view)
+        stopButton.setDimensions(width: 200, height: 60)
+        stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 50)
+        stopButton.layer.cornerRadius = 16
     }
     
     
@@ -177,6 +237,19 @@ class MainViewController: UIViewController {
     }
     
     
+    // Переключение лампы
+    private func switchLamp(red: Int, green: Int, blue: Int) {
+        let messageDictionary : [String: Any] = [ "red": red, "green": green, "blue": blue]
+        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
+        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+        
+        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
+        mqtt.publish(message)
+    }
+    
+    
+    // Timer Actions
+    
     // Настройка таймера
     private func startTimer() {
         setTimerCounting(true)
@@ -198,20 +271,19 @@ class MainViewController: UIViewController {
         stopButton.isHidden = true
     }
     
-    
     private func makeDate(from value: Int) -> Date {
         let calendar = Calendar.current
         return calendar.date(byAdding: .minute, value: value, to: Date())!
     }
     
     private func setTime(date: Date?) {
-        userDefaults.set(date, forKey: STOP_TIME_KEY)
+        userDefaults.set(date, forKey: topTimeKey)
         sceduleTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(refreshValue), userInfo: nil, repeats: true)
     }
     
     private func setTimerCounting(_ val: Bool) {
         isTimerCounting = val
-        userDefaults.set(isTimerCounting, forKey: COUNTING_KEY)
+        userDefaults.set(isTimerCounting, forKey: countingKey)
     }
     
     @objc func refreshValue() {
@@ -250,103 +322,6 @@ class MainViewController: UIViewController {
         timeString += ":"
         timeString += String(format: "%02d", -sec)
         return timeString.replacingOccurrences(of: "-", with: "")
-    }
-    
-    
-    private func switchLamp(red: Int, green: Int, blue: Int) {
-        print("Publish1")
-        let messageDictionary : [String: Any] = [ "red": red, "green": green, "blue": blue]
-        let jsonData = try! JSONSerialization.data(withJSONObject: messageDictionary, options: [])
-        let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-        
-        let message = CocoaMQTTMessage(topic: messageTopic, string: jsonString)
-        mqtt.publish(message)
-        print("Publish2")
-    
-    }
-    
-    
-    
-    
-    
-    
-    
-    // MARK: - UI Setup
-    
-    // Настраиваем элементы интерфейса
-    private func setupUI() {
-        
-        // menu table
-        
-        menuTableView = UITableView()
-        menuTableView.delegate = self
-        menuTableView.dataSource = self
-        menuTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
-        
-        
-        view.addSubview(menuTableView)
-        menuTableView.frame = view.bounds
-        
-        menuTableView.separatorStyle = .none
-        menuTableView.rowHeight = 90
-        menuTableView.backgroundColor = .white
-        
-        
-        // container view
-        
-        view.addSubview(containerView)
-        containerView.frame = view.bounds
-        containerView.backgroundColor = UIColor(named: "BackgroundColor")
-        
-        
-        
-        // menu button
-        containerView.addSubview(menuButton)
-        menuButton.setDimensions(width: 35, height: 35)
-        menuButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 16, paddingLeft: 16)
-        
-        // animation logo image
-        containerView.addSubview(logoAnimationView)
-        
-        // logo label
-        containerView.addSubview(logoLabel)
-        
-        logoAnimationView.anchor(top: menuButton.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, height: 185)
-        logoAnimationView.play()
-        
-        logoLabel.anchor(top: logoAnimationView.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: -24, height: 72)
-        
-        
-        // favourites button
-        containerView.addSubview(scriptsButton)
-        scriptsButton.setDimensions(width: 120, height: 40)
-        scriptsButton.layer.cornerRadius = 17
-        scriptsButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, right: view.rightAnchor, paddingTop: 16, paddingRight: 16)
-        
-        
-        // script label
-        containerView.addSubview(scriptLabel)
-        scriptLabel.centerX(inView: view)
-        scriptLabel.anchor(top: logoLabel.bottomAnchor, left: containerView.leftAnchor, right: containerView.rightAnchor,  paddingTop: 24, height: 50)
-        
-        
-        // start button
-        containerView.addSubview(startButton)
-        containerView.addSubview(stopButton)
-        
-        startButton.centerX(inView: view)
-        let dimension = UIScreen.main.bounds.width / 2.7
-        startButton.setDimensions(width: dimension, height: dimension)
-        startButton.anchor(top: scriptLabel.bottomAnchor, paddingTop: 28)
-        startButton.layer.cornerRadius = dimension / 2
-        startButton.titleLabel?.minimumScaleFactor = 0.6
-        
-        // stop button
-        
-        stopButton.centerX(inView: view)
-        stopButton.setDimensions(width: 200, height: 60)
-        stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 50)
-        stopButton.layer.cornerRadius = 16
     }
     
     
@@ -463,6 +438,7 @@ class MainViewController: UIViewController {
     }
     
     
+    // Действие для кнопки "Сценарий"
     @objc func scriptsButtonTapped() {
         scriptPopVC = PopoverScriptTableViewController()
         scriptPopVC.modalPresentationStyle = .popover
@@ -493,6 +469,7 @@ class MainViewController: UIViewController {
         
         present(scriptPopVC, animated: true)
     }
+    
     
     @objc func applicationWillEnterForeground(_ notification: NotificationCenter) {
         setupMQTT()
@@ -528,24 +505,21 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let templatesNavVC = UINavigationController(rootViewController: templatesVC)
                         templatesNavVC.modalPresentationStyle = .fullScreen
             
+            // Действие для кнопки "Начать" в ячейке
             templatesVC.startTimerAciton = { [weak self] templateModel in
-//                print("Tapped")
                 guard let self = self else { return }
      
                 self.stopTime = self.makeDate(from: templateModel.stopTime)
                 self.startTimer()
-                
                 self.scriptLabel.text = templateModel.title
                 
                 let currentScript = CurrentTemplateModel(title: templateModel.title, red: templateModel.red, green: templateModel.green, blue: templateModel.blue, stopTime: templateModel.stopTime)
-    
                 try! self.realm.write {
                     self.realm.delete(Array(self.currentScriptArray))
                     self.realm.add(currentScript)
                 }
                 
                 self.switchLamp(red: templateModel.red, green: templateModel.green, blue: templateModel.blue)
-                print("Tapped")
                 self.isMenuPresented = false
                 self.hideMenu()
             }
@@ -557,8 +531,10 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let manualTemplatesNavVC = UINavigationController(rootViewController: manualTemplatesVC)
             manualTemplatesNavVC.modalPresentationStyle = .fullScreen
             
-            manualTemplatesVC.stopTimer = { [weak self] in
+            // Действие для кнопки "Показать на устройстве"
+            manualTemplatesVC.showOnDeviceAction = { [weak self] red, green, blue in
                 self?.stopTimer()
+                self?.switchLamp(red: red, green: green, blue: blue)
             }
             
             present(manualTemplatesNavVC, animated: true, completion: nil)
@@ -568,9 +544,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             let favouritesNavVC = UINavigationController(rootViewController: favouritesVC)
                         favouritesNavVC.modalPresentationStyle = .fullScreen
             present(favouritesNavVC, animated: true, completion: nil)
-            
-        case 4:
-            print("")
+        
         default:
             break
         }
