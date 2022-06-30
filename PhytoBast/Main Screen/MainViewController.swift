@@ -335,9 +335,9 @@ class MainViewController: UIViewController {
         containerView.addSubview(stopButton)
         
         startButton.centerX(inView: view)
-        let dimension = UIScreen.main.bounds.width / 2.5
+        let dimension = UIScreen.main.bounds.width / 2.7
         startButton.setDimensions(width: dimension, height: dimension)
-        startButton.anchor(bottom: stopButton.topAnchor, paddingBottom: 32)
+        startButton.anchor(top: scriptLabel.bottomAnchor, paddingTop: 28)
         startButton.layer.cornerRadius = dimension / 2
         startButton.titleLabel?.minimumScaleFactor = 0.6
         
@@ -345,7 +345,7 @@ class MainViewController: UIViewController {
         
         stopButton.centerX(inView: view)
         stopButton.setDimensions(width: 200, height: 60)
-        stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 70)
+        stopButton.anchor(bottom: view.bottomAnchor, paddingBottom: 50)
         stopButton.layer.cornerRadius = 16
     }
     
