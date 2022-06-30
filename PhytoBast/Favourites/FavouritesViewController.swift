@@ -21,7 +21,7 @@ class FavouritesViewController: UITableViewController {
         label.numberOfLines = 0
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 19, weight: .regular)
-        label.textColor = UIColor(named: "GreenWhite")
+        label.textColor = UIColor.secondaryLabel
         return label
     }()
     

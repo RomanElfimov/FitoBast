@@ -210,6 +210,7 @@ class ManualTemplatesViewController: UITableViewController {
         
         templateNameCell.contentView.addSubview(templateNameTextField)
         templateNameTextField.anchor(top: templateNameCell.topAnchor, left: templateNameCell.leftAnchor, bottom: templateNameCell.bottomAnchor, right: templateNameCell.rightAnchor, paddingTop: 24, paddingLeft: 20, paddingBottom: 2, paddingRight: 0)
+        templateNameTextField.delegate = self
         
         
         // Duration Cell
@@ -595,7 +596,11 @@ extension ManualTemplatesViewController: UIPickerViewDelegate, UIPickerViewDataS
 
 
 
-
+extension ManualTemplatesViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        templateNameTextField.resignFirstResponder()
+    }
+}
 
 
 

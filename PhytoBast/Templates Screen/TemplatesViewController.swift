@@ -43,6 +43,16 @@ class TemplatesViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionType, TemplatesModel>?
     
+    private lazy var isEmptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Создайте шаблоны в разделе Ручная настройка"
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 19, weight: .regular)
+        label.textColor = UIColor.secondaryLabel
+        return label
+    }()
+    
     
     // MARK: - LifeCycle
     
@@ -60,6 +70,8 @@ class TemplatesViewController: UIViewController {
         setupCollectionView()
         createDataSource()
         reloadData()
+        
+       checkIsEmpty()
     }
     
     
@@ -141,6 +153,16 @@ class TemplatesViewController: UIViewController {
         dismissButton.tintColor = .white
         navigationItem.leftBarButtonItem = dismissButton
         
+    }
+    
+    private func checkIsEmpty() {
+        if manualTemplatesDataSourceArray.isEmpty {
+            view.addSubview(isEmptyLabel)
+            isEmptyLabel.anchor(left: view.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.rightAnchor, paddingLeft: 24, paddingBottom: 12, paddingRight: 24, height: 150)
+            isEmptyLabel.centerX(inView: view)
+        } else {
+            isEmptyLabel.removeFromSuperview()
+        }
     }
     
     
@@ -250,6 +272,7 @@ extension TemplatesViewController {
                     }
                     self.fetchDataFromRealm()
                     self.reloadData()
+                    self.checkIsEmpty()
                 }
                 
                 return cell

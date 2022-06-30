@@ -166,7 +166,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-                                mqtt.delegate = self
+//                                mqtt.delegate = self
         mqtt.connect()
     }
     
