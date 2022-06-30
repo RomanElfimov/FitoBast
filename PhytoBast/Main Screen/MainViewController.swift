@@ -59,7 +59,7 @@ class MainViewController: UIViewController {
         return button
     }()
     
-    private let logoAnimationView = AnimationView(name: "leaves_dark")
+    private let logoAnimationView = AnimationView(name: "leaves")
     
     private lazy var logoLabel: UILabel = {
         let label = UILabel()
@@ -166,7 +166,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-//                                mqtt.delegate = self
+                                mqtt.delegate = self
         mqtt.connect()
     }
     
