@@ -53,6 +53,9 @@ class TemplatesViewController: UIViewController {
         return label
     }()
     
+    override func viewDidAppear(_ animated: Bool) {
+        navigationController?.navigationBar.barStyle = .black
+    }
     
     // MARK: - LifeCycle
     

@@ -111,16 +111,22 @@ class MainViewController: UIViewController {
         return button
     }()
     
+  
     
     // MARK: - Life Cycle
+    /*
     override func viewWillAppear(_ animated: Bool) {
         setupMQTT()
-        print("appear")
+        UIApplication.shared.statusBarStyle = .darkContent
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        UIApplication.shared.statusBarStyle = .lightContent
+    }
+    */
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("Virw main")
         
 //        setupMQTT()
         setupUI()
@@ -166,7 +172,7 @@ class MainViewController: UIViewController {
         mqtt.password = "adminpsw"
         
         mqtt.keepAlive = 60
-                                mqtt.delegate = self
+//                                mqtt.delegate = self
         mqtt.connect()
     }
     
