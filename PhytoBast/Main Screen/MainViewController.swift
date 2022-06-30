@@ -422,7 +422,6 @@ class MainViewController: UIViewController {
         }
     }
     
-    
     @objc func swipeRightAction() {
         if !isMenuPresented {
             showMenu()

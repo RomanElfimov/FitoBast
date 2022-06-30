@@ -14,7 +14,7 @@ class FavouritesViewController: UITableViewController {
     
     private let realm = try! Realm()
     private var favouritesDataSourceArray: [TemplatesModel] = []
-
+    
     private lazy var isEmptyLabel: UILabel = {
         let label = UILabel()
         label.text = "В избранном пока пусто"
@@ -43,7 +43,7 @@ class FavouritesViewController: UITableViewController {
     }
     
     
-    // MARK: - Private Method
+    // MARK: - Private Methods
     
     private func checkIsEmpty() {
         if favouritesDataSourceArray.isEmpty {
@@ -83,22 +83,19 @@ class FavouritesViewController: UITableViewController {
     }
     
     
-
+    
     // MARK: - Table view data source
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favouritesDataSourceArray.count
     }
-
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! FavouritesTableViewCell
-
         cell.configure(with: favouritesDataSourceArray[indexPath.row])
-
         return cell
     }
-    
     
     
     // Удаление из избранного
@@ -115,12 +112,12 @@ class FavouritesViewController: UITableViewController {
         if (editingStyle == .delete) {
             let template = favouritesDataSourceArray[indexPath.row]
             try! self.realm.write {
-                            template.isFavourite = false
-                        }
+                template.isFavourite = false
+            }
             
             favouritesDataSourceArray.remove(at: indexPath.row)
-                        tableView.deleteRows(at: [indexPath], with: .automatic)
-           checkIsEmpty()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            checkIsEmpty()
         }
     }
     

@@ -18,7 +18,7 @@ class FavouritesTableViewCell: UITableViewCell {
         view.layer.cornerRadius = 5
         view.layer.shadowRadius = 5
         view.layer.shadowOpacity = 0.3
-    
+        
         view.layer.shadowOffset = CGSize(width: 2, height: 2)
         view.clipsToBounds = false
         
@@ -40,16 +40,13 @@ class FavouritesTableViewCell: UITableViewCell {
     private let greenLabel = UILabel()
     private let blueLabel = UILabel()
     
-
     
     // MARK: - LifeCycle
-   
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        
         // Adding subViews
-        
         addSubview(rgbPreView)
         addSubview(titleLabel)
         addSubview(durationLabel)
@@ -60,9 +57,7 @@ class FavouritesTableViewCell: UITableViewCell {
         
         addSubview(rgbStack)
         
-    
         // Setup constraints
-        
         rgbPreView.anchor(top: topAnchor, left: leftAnchor, bottom: rgbStack.topAnchor, right: titleLabel.leftAnchor, paddingTop: 22, paddingLeft: 16, paddingBottom: 8, paddingRight: 16, width: 70)
         
         titleLabel.anchor(top: topAnchor, left: rgbPreView.rightAnchor, bottom: durationLabel.topAnchor, right: rightAnchor, paddingTop: 22, paddingLeft: 16, paddingBottom: 8, paddingRight: 16)
@@ -71,24 +66,11 @@ class FavouritesTableViewCell: UITableViewCell {
         
         rgbStack.anchor(top: durationLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 8, paddingLeft: 16, paddingRight: 16, height: 50)
     }
-
+    
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//
-//        // Тени для ячейки
-//        self.layer.cornerRadius = 5
-//        self.layer.shadowRadius = 9
-//        layer.shadowOpacity = 0.3
-//
-//        layer.shadowOffset = CGSize(width: 5, height: 5)
-//        self.clipsToBounds = false
-//    }
     
     
     

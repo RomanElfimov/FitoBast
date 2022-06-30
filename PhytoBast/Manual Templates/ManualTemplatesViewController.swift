@@ -10,7 +10,9 @@ import RealmSwift
 
 class ManualTemplatesViewController: UITableViewController {
     
-    var showOnDeviceAction: ((Int, Int, Int)  -> ())?
+    // MARK: - Public closure
+    
+    public var showOnDeviceAction: ((Int, Int, Int)  -> ())?
     
     // MARK: - Private Properties
     
@@ -19,13 +21,11 @@ class ManualTemplatesViewController: UITableViewController {
     private let durationPickerDataArray = (1...24).map { "\($0) ч." }
     private var selectedDuration: Int = 1
     
-    
     // MARK: - Interface Properties
     
     private var alertView = ConnectionAlertView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
     
     // Name
-    
     private let templateNameCell = UITableViewCell()
     private lazy var templateNameTextField: UITextField = {
         let tf = UITextField()
@@ -35,7 +35,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Duration
-    
     private let durationCell = UITableViewCell()
     private lazy var durationLabel: UILabel = {
         let label = UILabel()
@@ -46,7 +45,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Red Cell
-    
     private let redSliderCell = UITableViewCell()
     private lazy var redLabel: UILabel = {
         let label = UILabel()
@@ -75,7 +73,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Green Cell
-    
     private let greenSliderCell = UITableViewCell()
     private lazy var greenLabel: UILabel = {
         let label = UILabel()
@@ -104,7 +101,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Blue Cell
-    
     private let blueSliderCell = UITableViewCell()
     private lazy var blueLabel: UILabel = {
         let label = UILabel()
@@ -133,13 +129,11 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Color Pallete
-    
     private let colorPalleteCell = UITableViewCell()
     private let colorPalleteView = UIView()
     
     
     // Show color on device
-    
     private let showColorCell = UITableViewCell()
     private lazy var showColorButton: UIButton = {
         let button = UIButton(type: .system)
@@ -152,7 +146,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     // Save Template
-    
     private let saveCell = UITableViewCell()
     private lazy var saveButton: UIButton = {
         let button = UIButton(type: .system)
@@ -165,11 +158,10 @@ class ManualTemplatesViewController: UITableViewController {
     }()
     
     
-    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
-        super.viewDidLoad()        
+        super.viewDidLoad()
         setupUI()
         tableView.allowsSelection = false
     }
@@ -183,14 +175,12 @@ class ManualTemplatesViewController: UITableViewController {
         tableView = UITableView(frame: view.bounds, style: .insetGrouped)
         
         // Templates Cell
-        
         templateNameCell.contentView.addSubview(templateNameTextField)
         templateNameTextField.anchor(top: templateNameCell.topAnchor, left: templateNameCell.leftAnchor, bottom: templateNameCell.bottomAnchor, right: templateNameCell.rightAnchor, paddingTop: 24, paddingLeft: 20, paddingBottom: 2, paddingRight: 0)
         templateNameTextField.delegate = self
         
         
         // Duration Cell
-        
         durationCell.contentView.addSubview(durationLabel)
         durationCell.contentView.addSubview(durationPicker)
         
@@ -202,22 +192,18 @@ class ManualTemplatesViewController: UITableViewController {
         
         
         // Red Cell
-        
         setupSliderCell(cell: redSliderCell, slider: redSlider, label: redLabel, minLabel: minRedLabel, maxLabel: maxRedLabel)
         
         
-        // Greed Cell
-        
+        // Green Cell
         setupSliderCell(cell: greenSliderCell, slider: greenSlider, label: greenLabel, minLabel: minGreenLabel, maxLabel: maxGreenLabel)
         
         
         // Blue Cell
-        
         setupSliderCell(cell: blueSliderCell, slider: blueSlider, label: blueLabel, minLabel: minBlueLabel, maxLabel: maxBlueLabel)
         
         
         // Color Pallete
-        
         colorPalleteCell.addSubview(colorPalleteView)
         colorPalleteView.anchor(top: colorPalleteCell.topAnchor, left: colorPalleteCell.leftAnchor, bottom: colorPalleteCell.bottomAnchor, right: colorPalleteCell.rightAnchor, paddingTop: 16, paddingLeft: 16, paddingBottom: 16, paddingRight: 15)
         colorPalleteView.backgroundColor = .cyan
@@ -225,17 +211,14 @@ class ManualTemplatesViewController: UITableViewController {
         
         
         // Show Color Button
-        
         showColorCell.contentView.addSubview(showColorButton)
         showColorButton.anchor(top: showColorCell.topAnchor, left: showColorCell.leftAnchor, bottom: showColorCell.bottomAnchor, right: showColorCell.rightAnchor, paddingTop: 16, paddingLeft: 44, paddingBottom: 16, paddingRight: 44)
         
         
         // Save Template
-        
         saveCell.contentView.addSubview(saveButton)
         saveButton.layer.cornerRadius = 20
         saveButton.anchor(top: saveCell.topAnchor, left: saveCell.leftAnchor, bottom: saveCell.bottomAnchor, right: saveCell.rightAnchor, paddingTop: 16, paddingLeft: 44, paddingBottom: 16, paddingRight: 44)
-        
         
         
         createGradientForSlider(colors: [CGColor.red1Color, CGColor.red2Color, CGColor.red3Color, UIColor.red.cgColor], slider: redSlider)
@@ -298,7 +281,6 @@ class ManualTemplatesViewController: UITableViewController {
         let menuButton = UIBarButtonItem(title: "Отмена", style: .plain, target: self, action: #selector(cancelButtonTapped))
         menuButton.tintColor = .white
         navigationItem.leftBarButtonItem = menuButton
-        
     }
     
     
@@ -314,8 +296,6 @@ class ManualTemplatesViewController: UITableViewController {
     
     
     @objc func showColorButtonAction() {
-        
-        
         let userDefaults = UserDefaults.standard
         let isTimerCounting = userDefaults.bool(forKey: "timerCounting")
         
@@ -335,12 +315,6 @@ class ManualTemplatesViewController: UITableViewController {
         } else {
             self.showOnDeviceAction?(Int(self.redSlider.value), Int(self.greenSlider.value), Int(self.blueSlider.value))
         }
-        
-        
-        
-        
-        
-        
     }
     
     
@@ -355,7 +329,6 @@ class ManualTemplatesViewController: UITableViewController {
         }
         
         // Realm
-        
         let newTemplate = TemplatesModel()
         
         newTemplate.title = tempTitle
@@ -376,15 +349,7 @@ class ManualTemplatesViewController: UITableViewController {
         presentationController?.presentedViewController.dismiss(animated: true)
     }
     
-    
-    
-    
-    
 }
-
-
-
-
 
 
 
@@ -407,7 +372,6 @@ extension ManualTemplatesViewController {
             return 0
         }
     }
-    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
@@ -490,16 +454,16 @@ extension ManualTemplatesViewController: UIPickerViewDelegate, UIPickerViewDataS
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-
+        
         let durationNumber = durationPickerDataArray[row].components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
         
         selectedDuration = Int(durationNumber) ?? 0
-        print(selectedDuration)
     }
 }
 
 
 
+// MARK: - UITextFieldDelegate
 
 extension ManualTemplatesViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
