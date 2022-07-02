@@ -101,7 +101,7 @@ class MainViewController: UIViewController {
     
     private lazy var stopButton: UIButton = {
         let button = UIButton()
-        button.layer.borderColor = UIColor(named: "GreenWhite")?.cgColor
+        button.layer.borderColor = UIColor(named: "LightGreen")?.cgColor
         button.layer.borderWidth = 2
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22)
         button.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
@@ -113,20 +113,10 @@ class MainViewController: UIViewController {
   
     
     // MARK: - Life Cycle
-    /*
-    override func viewWillAppear(_ animated: Bool) {
-        setupMQTT()
-        UIApplication.shared.statusBarStyle = .darkContent
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        UIApplication.shared.statusBarStyle = .lightContent
-    }
-    */
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupMQTT()
         setupUI()
         
         currentScriptArray = realm.objects(CurrentTemplateModel.self)
@@ -147,7 +137,6 @@ class MainViewController: UIViewController {
     
     // Настраиваем элементы интерфейса
     private func setupUI() {
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
         
         // menu
     
@@ -259,7 +248,9 @@ class MainViewController: UIViewController {
     }
     
     private func stopTimer() {
-        sceduleTimer.invalidate()
+        if sceduleTimer != nil {
+            sceduleTimer.invalidate()
+        }
         setTimerCounting(false)
         startButton.setTitle("Старт", for: .normal)
         startButton.isUserInteractionEnabled = true
@@ -468,12 +459,6 @@ class MainViewController: UIViewController {
         
         present(scriptPopVC, animated: true)
     }
-    
-    
-    @objc func applicationWillEnterForeground(_ notification: NotificationCenter) {
-        setupMQTT()
-    }
-    
 }
 
 
@@ -585,41 +570,23 @@ extension MainViewController: CocoaMQTTDelegate {
     
     
     
-    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topics: [String]) {
-        print("didSubscribeTopic: \(topics)")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topics: [String]) {}
     
-    func mqttDidPing(_ mqtt: CocoaMQTT) {
-        print("mqttDidPing")
-    }
+    func mqttDidPing(_ mqtt: CocoaMQTT) {}
     
-    func mqttDidReceivePong(_ mqtt: CocoaMQTT) {
-        print("mqttDidReceivePong")
-    }
+    func mqttDidReceivePong(_ mqtt: CocoaMQTT) {}
     
-    func mqtt(_ mqtt: CocoaMQTT, didPublishAck id: UInt16) {
-        print("didPublishAck : \(id)")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didPublishAck id: UInt16) {}
     
-    func mqtt(_ mqtt: CocoaMQTT, didPublishComplete id: UInt16) {
-        print("didPublishComplete: \(id)")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didPublishComplete id: UInt16) {}
     
-    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topic: String) {
-        print("didSubscribeTopic: \(topic)")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopic topic: String) {}
     
-    func mqtt(_ mqtt: CocoaMQTT, didUnsubscribeTopic topic: String) {
-        print("didUnsubscribeTopic: \(topic)")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didUnsubscribeTopic topic: String) {}
     
-    func mqttDidDisconnect(_ mqtt: CocoaMQTT, withError err: Error?) {
-        print("mqttDidDisconnect: \(err?.localizedDescription ?? "")")
-    }
+    func mqttDidDisconnect(_ mqtt: CocoaMQTT, withError err: Error?) {}
     
-    func mqtt(_ mqtt: CocoaMQTT, didReceive trust: SecTrust, completionHandler: @escaping (Bool) -> Void) {
-        print("didReceive trust")
-    }
+    func mqtt(_ mqtt: CocoaMQTT, didReceive trust: SecTrust, completionHandler: @escaping (Bool) -> Void) {}
 }
 
 

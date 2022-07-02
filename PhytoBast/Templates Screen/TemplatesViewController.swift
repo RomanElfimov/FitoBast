@@ -211,7 +211,6 @@ extension TemplatesViewController {
                 cell.configure(with: template)
                 cell.startButtonAction = { [weak self] in
                     guard let self = self else { return }
-                    print("Tapped")
                     
                     let isTimerCounting = self.userDefaults.bool(forKey: "timerCounting")
                     

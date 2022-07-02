@@ -40,21 +40,13 @@ class ConnectionAlertView: UIView {
         return label
     }()
     
-    private lazy var thirdDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Это сообщение пропадет автоматически"
-        return label
-    }()
     
-    
-    
-    // MARK: - Init()
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
-    
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -89,8 +81,6 @@ class ConnectionAlertView: UIView {
             self.alertView.transform = CGAffineTransform.identity
         }
 
-        
-        
         // animation view
         alertView.addSubview(animationView)
         animationView.contentMode = .scaleAspectFill
@@ -99,13 +89,11 @@ class ConnectionAlertView: UIView {
             self.animationView.reloadImages()
         }
         
-        
-        
+        // description labels
         let stack = UIStackView(arrangedSubviews: [firstDescriptionLabel, secondDescriptionLabel])
         stack.axis = .vertical
         stack.distribution = .fillProportionally
         stack.spacing = 4
-        
         
         alertView.addSubview(stack)
         
@@ -113,9 +101,6 @@ class ConnectionAlertView: UIView {
         animationView.setDimensions(width: 200, height: 250)
         
         stack.anchor(top: animationView.bottomAnchor, left: alertView.leftAnchor, bottom: alertView.bottomAnchor, right: alertView.rightAnchor, paddingLeft: 12, paddingBottom: 12, paddingRight: 18)
-        
-        
-        
     }
 }
 

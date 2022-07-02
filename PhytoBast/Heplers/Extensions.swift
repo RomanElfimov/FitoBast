@@ -100,7 +100,6 @@ extension CGColor {
     static let green2Color = UIColor(red: 157/255, green: 255/255, blue: 79/255, alpha: 1).cgColor
     static let green3Color = UIColor(red: 128/255, green: 255/255, blue: 0/255, alpha: 1).cgColor
     
-    
     static let blue1Color = UIColor(red: 171/255, green: 223/255, blue: 255/255, alpha: 1).cgColor
     static let blue2Color = UIColor(red: 97/255, green: 201/255, blue: 255/255, alpha: 1).cgColor
     static let blue3Color = UIColor(red: 0/255, green: 191/255, blue: 255/255, alpha: 1).cgColor
